@@ -60,7 +60,7 @@
             border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; z-index: 20;
         }
 
-        /* ⭐️ 폰 뒷면 전용 스타일 (카메라 세로 2개 우측배열로 변경) ⭐️ */
+        /* ⭐️ 폰 뒷면 아이폰 카메라 스타일 ⭐️ */
         .phone-back {
             background: #334155; 
             border-color: #0f172a;
@@ -68,12 +68,31 @@
             position: relative;
         }
         .camera-module {
-            position: absolute; right: 20px; top: 30px;
-            width: 55px; height: 110px; background: #1e293b; border-radius: 20px;
-            border: 2px solid #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 10px;
-            box-shadow: 4px 4px 15px rgba(0,0,0,0.4); z-index: 10;
+            position: absolute; right: 15px; top: 20px;
+            width: 76px; height: 80px; background: #1c1c1e; border-radius: 20px;
+            border: 2px solid #2c2c2e; box-shadow: 2px 2px 12px rgba(0,0,0,0.5); z-index: 10;
         }
-        .lens { width: 30px; height: 30px; background: #000; border-radius: 50%; border: 3px solid #334155; box-shadow: inset 0 0 8px rgba(255,255,255,0.2); }
+        .lens { 
+            position: absolute; width: 28px; height: 28px; background: #0b0b0c; 
+            border-radius: 50%; border: 2px solid #222; box-shadow: inset 0 0 5px rgba(0,0,0,1); 
+            display: flex; justify-content: center; align-items: center; 
+        }
+        .lens::after { 
+            content: ''; width: 10px; height: 10px; background: #050505; 
+            border-radius: 50%; border: 1px solid #111; box-shadow: inset 0 0 2px rgba(255,255,255,0.2); 
+        }
+        .lens-1 { top: 6px; left: 6px; }
+        .lens-2 { bottom: 6px; left: 6px; }
+        .lens-3 { top: 25px; right: 6px; }
+        .flash { 
+            position: absolute; top: 10px; right: 14px; width: 12px; height: 12px; 
+            background: #fffae6; border-radius: 50%; border: 1px solid #a3a3a3; 
+            box-shadow: inset 0 0 3px rgba(0,0,0,0.3); 
+        }
+        .lidar { 
+            position: absolute; bottom: 12px; right: 15px; width: 10px; height: 10px; 
+            background: #000; border-radius: 50%; box-shadow: inset 0 0 2px rgba(255,255,255,0.1); 
+        }
 
         .preview-content { height: 100%; padding: 38px 16px 16px; }
         
@@ -111,7 +130,6 @@
             transition: filter 0.3s;
         }
         .sticker-content img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-        /* 텍스트 내용 수정 커서 처리 */
         .text-sticker span { display: block; outline: none; cursor: text; transition: text-shadow 0.3s, -webkit-text-stroke 0.3s; }
 
         /* 콜라주 프레임 */
@@ -415,7 +433,8 @@
 
                     <div class="flex items-center gap-2 mt-2">
                         <span class="text-[10px] w-14 text-slate-500">뒷면 가로</span>
-                        <input type="range" id="ui-back-x" min="-500" max="1200" step="1" value="750" class="flex-1"> </div>
+                        <input type="range" id="ui-back-x" min="-500" max="1200" step="1" value="750" class="flex-1">
+                    </div>
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] w-14 text-slate-500">뒷면 세로</span>
                         <input type="range" id="ui-back-y" min="-300" max="600" step="1" value="100" class="flex-1">
@@ -569,8 +588,11 @@
             <div id="phone-back-wrapper" style="position: absolute; left: 750px; top: 100px; transform: rotate(15deg) scale(1); transform-origin: center center; z-index: 1; display: none;">
                 <div id="phone-back-frame" class="phone-frame phone-back">
                     <div id="camera-module" class="camera-module">
-                        <div class="lens"></div>
-                        <div class="lens"></div>
+                        <div class="lens lens-1"></div>
+                        <div class="lens lens-2"></div>
+                        <div class="lens lens-3"></div>
+                        <div class="flash"></div>
+                        <div class="lidar"></div>
                     </div>
                 </div>
             </div>
@@ -642,12 +664,12 @@
             const btnClose = document.getElementById('btn-close-modal');
             const chkNeverShow = document.getElementById('never-show-again');
 
-            if (!localStorage.getItem('hideNoticeModal')) {
+            if (!localStorage.getItem('hideNoticeModal_v2')) {
                 modal.style.display = 'flex';
             }
             btnClose.addEventListener('click', () => {
                 if (chkNeverShow.checked) {
-                    localStorage.setItem('hideNoticeModal', 'true');
+                    localStorage.setItem('hideNoticeModal_v2', 'true');
                 }
                 modal.style.display = 'none';
             });
@@ -666,7 +688,7 @@
             
             const htmlState = document.getElementById('capture-area').innerHTML;
             undoStack.push(htmlState);
-            if(undoStack.length > 50) undoStack.shift(); // 메모리 관리
+            if(undoStack.length > 50) undoStack.shift();
             redoStack = [];
             
             // 원래 선택 상태 복구
@@ -677,7 +699,7 @@
             document.getElementById('capture-area').innerHTML = htmlState;
             selectedObjs = [];
             document.getElementById('selected-controls').style.display = 'none';
-            reattachEvents(); // 복원된 DOM 엘리먼트에 이벤트 재부착
+            reattachEvents(); 
         }
 
         document.getElementById('btn-undo').addEventListener('click', () => {
@@ -687,7 +709,7 @@
                 restoreState(undoStack[undoStack.length - 1]);
             }
         });
-
+        
         document.getElementById('btn-redo').addEventListener('click', () => {
             if (redoStack.length > 0) {
                 const nextState = redoStack.pop();
@@ -695,27 +717,23 @@
                 restoreState(nextState);
             }
         });
-
-        // Ctrl+Z, Ctrl+Y 단축키 연동
+        
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key.toLowerCase() === 'z') { e.preventDefault(); document.getElementById('btn-undo').click(); }
             if (e.ctrlKey && e.key.toLowerCase() === 'y') { e.preventDefault(); document.getElementById('btn-redo').click(); }
         });
-
-        // 초기 상태 저장
+        
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(saveState, 500); 
         });
-
 
         // ==========================================
         // 1. 프로필 이미지 위치/크기/회전 제어 
         // ==========================================
         const state = { accent: '#334155', tags1: [], tags2: [], imgScale: 1, imgX: 0, imgY: 0, imgRotate: 0 };
         let highestZIndex = 10;
-        let selectedObjs = []; // ⭐️ 다중 선택을 위한 배열 ⭐️
+        let selectedObjs = []; 
         let currentCollageCell = null;
-
         const el = id => document.getElementById(id);
 
         el('img-input').addEventListener('change', e => {
@@ -732,19 +750,18 @@
                 reader.readAsDataURL(file);
             }
         });
-
+        
         function updateImg() {
             const img = el('p-img');
             img.style.transform = `translate(-50%, -50%) translate(${state.imgX}px, ${state.imgY}px) scale(${state.imgScale}) rotate(${state.imgRotate}deg)`;
             img.style.left = '50%'; img.style.top = '50%';
         }
+        
         el('img-scale').addEventListener('input', e => { state.imgScale = parseFloat(e.target.value); updateImg(); });
         el('img-x').addEventListener('input', e => { state.imgX = parseFloat(e.target.value); updateImg(); });
         el('img-y').addEventListener('input', e => { state.imgY = parseFloat(e.target.value); updateImg(); });
         el('img-rotate').addEventListener('input', e => { state.imgRotate = parseFloat(e.target.value); updateImg(); });
-        
         ['img-scale', 'img-x', 'img-y', 'img-rotate'].forEach(id => el(id).addEventListener('change', saveState));
-
 
         // ==========================================
         // 2. 폰 텍스트 배율 / 그라데이션 / 테마 세팅
@@ -770,7 +787,7 @@
             el(id).addEventListener('input', updateGradient);
             el(id).addEventListener('change', saveState);
         });
-
+        
         const bind = (input, preview, isHtml = false) => {
             el(input).addEventListener('input', e => {
                 if(isHtml) el(preview).innerHTML = e.target.innerHTML;
@@ -778,12 +795,13 @@
             });
             el(input).addEventListener('change', saveState);
         };
+        
         bind('input-nickname', 'p-nickname');
         bind('input-id', 'p-id');
         bind('input-platform', 'p-platform');
         bind('input-info', 'p-info', true);
         bind('input-ng', 'p-ng', true);
-
+        
         el('input-bg').addEventListener('input', e => {
             el('capture-area').style.backgroundImage = 'none';
             el('capture-area').style.backgroundColor = e.target.value;
@@ -804,7 +822,7 @@
             el('bg-img-input').value = '';
             saveState();
         });
-
+        
         el('bg-img-input').addEventListener('change', e => {
             const file = e.target.files[0];
             if(!file) return;
@@ -815,7 +833,7 @@
             };
             reader.readAsDataURL(file);
         });
-
+        
         el('font-input').addEventListener('change', e => {
             const file = e.target.files[0];
             if (!file) return;
@@ -828,7 +846,7 @@
             };
             reader.readAsDataURL(file);
         });
-
+        
         // ==========================================
         // 2-1. 폰 기기 마우스 & 슬라이더 조작
         // ==========================================
@@ -840,7 +858,8 @@
             el('phone-wrapper').style.transform = `rotate(${frontState.rotate}deg) scale(${frontState.scale})`;
         }
         function updatePhoneBack() {
-            el('phone-back-wrapper').style.left = `${backState.x}px`; el('phone-back-wrapper').style.top = `${backState.y}px`;
+            el('phone-back-wrapper').style.left = `${backState.x}px`;
+            el('phone-back-wrapper').style.top = `${backState.y}px`;
             el('phone-back-wrapper').style.transform = `rotate(${backState.rotate}deg) scale(${frontState.scale})`;
         }
 
@@ -849,12 +868,12 @@
         el('ui-phone-y').addEventListener('input', e => { frontState.y = parseFloat(e.target.value); updatePhoneFront(); });
         el('ui-phone-rotate').addEventListener('input', e => { frontState.rotate = parseFloat(e.target.value); updatePhoneFront(); });
         ['ui-phone-scale', 'ui-phone-x', 'ui-phone-y', 'ui-phone-rotate'].forEach(id => el(id).addEventListener('change', saveState));
-
+        
         el('ui-back-x').addEventListener('input', e => { backState.x = parseFloat(e.target.value); updatePhoneBack(); });
         el('ui-back-y').addEventListener('input', e => { backState.y = parseFloat(e.target.value); updatePhoneBack(); });
         el('ui-back-rotate').addEventListener('input', e => { backState.rotate = parseFloat(e.target.value); updatePhoneBack(); });
         ['ui-back-x', 'ui-back-y', 'ui-back-rotate'].forEach(id => el(id).addEventListener('change', saveState));
-
+        
         // 뒷면 토글 및 스타일 연동 
         el('toggle-phone-back').addEventListener('change', e => {
             el('phone-back-wrapper').style.display = e.target.checked ? 'block' : 'none';
@@ -878,7 +897,7 @@
             el('camera-module').style.display = e.target.checked ? 'flex' : 'none';
             saveState();
         });
-
+        
         el('phone-back-bg-input').addEventListener('change', e => {
             const file = e.target.files[0];
             if(!file) return;
@@ -889,7 +908,7 @@
             };
             reader.readAsDataURL(file);
         });
-
+        
         // 폰 드래그 로직
         function makePhoneDraggable(wrapperId, stateObj, sliderXId, sliderYId) {
             const wrapper = el(wrapperId);
@@ -920,14 +939,14 @@
         }
         makePhoneDraggable('phone-wrapper', frontState, 'ui-phone-x', 'ui-phone-y');
         makePhoneDraggable('phone-back-wrapper', backState, 'ui-back-x', 'ui-back-y');
-
-
+        
         // 성향 칩셋 처리
         const setupChips = (container, list) => {
             document.querySelectorAll(`#${container} .chip`).forEach(chip => {
                 chip.onclick = () => {
                     const v = chip.dataset.val;
-                    if(list.includes(v)) { list.splice(list.indexOf(v), 1); chip.classList.remove('active'); } 
+                    if(list.includes(v)) { list.splice(list.indexOf(v), 1); chip.classList.remove('active'); 
+                    } 
                     else { list.push(v); chip.classList.add('active'); }
                     renderTags();
                     saveState();
@@ -983,16 +1002,13 @@
             }
 
             el('selected-controls').style.display = 'block';
-            
-            // 컨트롤 패널은 가장 첫번째 선택된 요소 기준으로 UI 표시
             const primaryObj = selectedObjs[0];
-
+            
             if (primaryObj.classList.contains('sticker-wrapper') || primaryObj.classList.contains('collage-wrapper')) {
                 el('selected-img-controls').style.display = 'block';
                 el('selected-text-controls').style.display = 'none';
                 el('selected-collage-controls').style.display = primaryObj.classList.contains('collage-wrapper') ? 'block' : 'none';
                 
-                // 자르기 버튼 표시 여부
                 if(primaryObj.classList.contains('sticker-wrapper') && selectedObjs.length === 1){
                     el('btn-open-crop').classList.remove('hidden');
                 } else {
@@ -1011,12 +1027,11 @@
         }
 
         function makeInteractable(obj) {
-            // 텍스트 개체의 스판 직접 클릭시 수정 진입 처리
             if (obj.classList.contains('text-sticker')) {
                 const textSpan = obj.querySelector('span');
                 textSpan.addEventListener('mousedown', (e) => {
                     selectObject(obj, e);
-                    e.stopPropagation(); // 부모 래퍼 드래그 방지
+                    e.stopPropagation(); 
                 });
                 textSpan.addEventListener('blur', saveState);
             }
@@ -1026,7 +1041,6 @@
                 if (e.target.classList.contains('resize-handle') || e.target.classList.contains('rotate-handle') || e.target.classList.contains('delete-btn') || e.target.classList.contains('collage-cell') || e.target.tagName === 'SPAN') return;
                 e.stopPropagation();
                 
-                // 현재 클릭한 요소가 선택 배열에 없다면 새로 선택
                 if (!selectedObjs.includes(obj)) {
                     selectObject(obj, e);
                 }
@@ -1034,7 +1048,6 @@
                 let startX = e.clientX; 
                 let startY = e.clientY;
                 
-                // 선택된 모든 객체의 초기 좌표 저장
                 const startCoords = selectedObjs.map(o => ({
                     el: o,
                     initX: parseFloat(o.style.left) || 0,
@@ -1079,11 +1092,11 @@
                         obj.style.transform = `rotate(${angle}deg)`;
                     }
                     function onMouseUp() { 
-                        window.removeEventListener('mousemove', onMouseMove); 
+                        window.removeEventListener('mousemove', onMouseMove);
                         window.removeEventListener('mouseup', onMouseUp); 
                         saveState();
                     }
-                    window.addEventListener('mousemove', onMouseMove); 
+                    window.addEventListener('mousemove', onMouseMove);
                     window.addEventListener('mouseup', onMouseUp);
                 });
             }
@@ -1110,11 +1123,11 @@
                         }
                     }
                     function onMouseUp() { 
-                        window.removeEventListener('mousemove', onMouseMove); 
+                        window.removeEventListener('mousemove', onMouseMove);
                         window.removeEventListener('mouseup', onMouseUp); 
                         saveState();
                     }
-                    window.addEventListener('mousemove', onMouseMove); 
+                    window.addEventListener('mousemove', onMouseMove);
                     window.addEventListener('mouseup', onMouseUp);
                 });
             }
@@ -1126,27 +1139,29 @@
             wrapper.style.left = '300px'; wrapper.style.top = '200px';
             wrapper.style.width = width; wrapper.style.height = height;
             wrapper.dataset.angle = 0;
-            highestZIndex++; wrapper.style.zIndex = highestZIndex;
+            highestZIndex++;
+            wrapper.style.zIndex = highestZIndex;
             return wrapper;
         }
 
         function appendControlsAndInit(wrapper) {
-            const resizeH = document.createElement('div'); resizeH.className = 'resize-handle';
+            const resizeH = document.createElement('div');
+            resizeH.className = 'resize-handle';
             const rotateH = document.createElement('div'); rotateH.className = 'rotate-handle';
-            const delBtn = document.createElement('div'); delBtn.className = 'delete-btn'; delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            const delBtn = document.createElement('div'); delBtn.className = 'delete-btn';
+            delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
             delBtn.onclick = (e) => { e.stopPropagation(); wrapper.remove(); selectObject(null); saveState(); };
 
             wrapper.appendChild(resizeH); wrapper.appendChild(rotateH); wrapper.appendChild(delBtn);
             el('capture-area').appendChild(wrapper);
-            makeInteractable(wrapper); selectObject(wrapper);
+            makeInteractable(wrapper);
+            selectObject(wrapper);
         }
 
-        // 재부착 함수 (Undo/Redo 시 호출)
         function reattachEvents() {
             document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper').forEach(el => {
                 makeInteractable(el);
                 
-                // 콜라주 셀 이벤트 재부착
                 if(el.classList.contains('collage-wrapper')) {
                     el.querySelectorAll('.collage-cell').forEach(cell => {
                         cell.addEventListener('mousedown', (ev) => {
@@ -1176,7 +1191,7 @@
             };
             reader.readAsDataURL(file);
         });
-
+        
         // 텍스트 추가
         el('btn-add-text').addEventListener('click', () => {
             const text = el('text-sticker-input').value;
@@ -1196,7 +1211,7 @@
             el('text-sticker-input').value = '';
             saveState();
         });
-
+        
         // 콜라주 추가
         document.querySelectorAll('.btn-add-collage').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -1247,12 +1262,11 @@
             reader.readAsDataURL(file);
             el('collage-upload').value = '';
         });
-
+        
         // ==========================================
         // ⭐️ 속성 제어 패널 연동 (다중 적용 지원) ⭐️
         // ==========================================
         el('btn-deselect').onclick = () => selectObject(null);
-        
         const changeZIndex = (modifier) => {
             selectedObjs.forEach(obj => {
                 let curZ = parseInt(obj.style.zIndex) || 10;
@@ -1283,7 +1297,7 @@
         };
         el('sel-b-width').oninput = applyImgBorder; el('sel-b-color').oninput = applyImgBorder;
         el('sel-b-width').addEventListener('change', saveState); el('sel-b-color').addEventListener('change', saveState);
-
+        
         const applyImgGlow = () => {
             let color = el('sel-img-glow-c').value;
             let size = el('sel-img-glow-s').value;
@@ -1295,7 +1309,7 @@
         };
         el('sel-img-glow-c').oninput = applyImgGlow; el('sel-img-glow-s').oninput = applyImgGlow;
         el('sel-img-glow-c').addEventListener('change', saveState); el('sel-img-glow-s').addEventListener('change', saveState);
-
+        
         el('sel-b-radius').oninput = (e) => {
             selectedObjs.forEach(obj => {
                 let content = obj.querySelector('.sticker-content') || obj.querySelector('.collage-grid');
@@ -1332,9 +1346,10 @@
             });
             saveState();
         });
-
+        
         const applyTextEffects = () => {
-            let strW = el('sel-t-stroke-w').value; let strC = el('sel-t-stroke-c').value;
+            let strW = el('sel-t-stroke-w').value;
+            let strC = el('sel-t-stroke-c').value;
             let gloS = el('sel-t-glow-s').value; let gloC = el('sel-t-glow-c').value;
             selectedObjs.forEach(obj => {
                 if (obj.classList.contains('text-sticker')) {
@@ -1348,7 +1363,7 @@
             el(id).addEventListener('input', applyTextEffects);
             el(id).addEventListener('change', saveState);
         });
-
+        
         // 콜라주 제어 (가로/세로 전환 및 텍스트 박스 On/Off)
         el('btn-toggle-layout').addEventListener('click', () => {
             selectedObjs.forEach(obj => {
@@ -1382,7 +1397,7 @@
             });
             saveState();
         });
-
+        
         // 자르기 로직 유지
         let cropper = null;
         el('btn-open-crop').addEventListener('click', () => {
@@ -1396,10 +1411,12 @@
                 restore: false, guides: true, center: true, highlight: false, cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
             });
         });
+        
         el('btn-crop-cancel').addEventListener('click', () => {
             el('crop-modal').classList.add('hidden');
             if(cropper) { cropper.destroy(); cropper = null; }
         });
+        
         el('btn-crop-apply').addEventListener('click', () => {
             if(!cropper || selectedObjs.length !== 1) return;
             const canvas = cropper.getCroppedCanvas();
@@ -1411,7 +1428,7 @@
             cropper.destroy(); cropper = null;
             saveState();
         });
-
+        
         el('btn-clear-stickers').onclick = () => {
             document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper').forEach(s => s.remove());
             selectObject(null);
@@ -1421,7 +1438,7 @@
         el('capture-area').addEventListener('mousedown', (e) => {
             if (e.target === el('capture-area') || e.target === el('gradient-overlay')) { selectObject(null); }
         });
-
+        
         // ==========================================
         // 다운로드 로직
         // ==========================================
