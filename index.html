@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메인트 메이커</title>
+    <title>가로형 커스텀 프로필 메이커 (업그레이드 버전)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -236,7 +236,7 @@
             <h2 class="text-xl font-black mb-4 text-slate-800 border-b border-slate-200 pb-3"><i class="fa-solid fa-circle-exclamation"></i> 주의사항</h2>
             <div class="text-[13px] text-slate-700 space-y-3 mb-6 font-medium leading-relaxed">
                 <p>본 이미지는 <strong class="text-slate-900">비상업적 용도</strong>로만 사용 가능합니다.</p>
-                <p>AI장르를 기반으로 만들었으며 AI장르 안에서 자유롭게 사용해주세요.</p>
+                <p>AI장르를 기반으로 만들었으며 AI장르 안에서만 사용해주세요.</p>
                 <p>편집은 자유롭게 해주세요.</p>
                 <p class="font-bold text-slate-800 bg-slate-100 p-2 rounded-lg border border-slate-300">다른 분들의 이용을 위해 제작자 아이디를 지우지 말아주세요.</p>
             </div>
@@ -1336,6 +1336,19 @@
                         container.style.borderWidth = `${width}px`;
                         container.style.borderColor = color;
                     }
+
+                    // --- BUG FIX: Add logic for borders between cells ---
+                    const grid = obj.querySelector('.collage-grid');
+                    if (grid) {
+                        if (width > 0) {
+                            grid.style.backgroundColor = color;
+                            grid.style.gap = `${width}px`;
+                        } else {
+                            grid.style.backgroundColor = 'transparent';
+                            grid.style.gap = '4px';
+                        }
+                    }
+                    // --- END OF BUG FIX ---
                 }
             });
         };
