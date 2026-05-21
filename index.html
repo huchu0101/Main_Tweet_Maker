@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>가로형 커스텀 프로필 메이커 (업그레이드 버전)</title>
+    <title>메인트윗 메이커</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     
     <style>
         :root {
-            --phone-text-scale: 1; /* 폰 내부 텍스트 크기 배율 */
-            --phone-lh: 1.4;       /* 폰 내부 줄간격 비율 */
+            --phone-text-scale: 1; 
+            --phone-lh: 1.4;       
+            --accent-color: #334155; /* 흑백톤 기본 색상 */
         }
 
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
             color: #1e293b;
             overflow: hidden;
             margin: 0;
@@ -39,254 +42,178 @@
         }
 
         .preview-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            overflow: auto;
-            background: #e2e8f0;
-            flex-grow: 1;
-            height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 40px; overflow: auto; background: #e2e8f0;
+            flex-grow: 1; height: 100vh;
         }
 
-        /* 폰 프레임 */
+        /* 폰 프레임 기본설정 */
         .phone-frame {
-            width: 300px;  
-            height: 600px; 
-            background: white;
-            border: 14px solid #1a1a1a;
-            border-radius: 44px;
+            width: 300px; height: 600px; background: white;
+            border: 14px solid #1a1a1a; border-radius: 44px;
             box-shadow: -10px 20px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
+            position: relative; overflow: hidden;
         }
-        
         .phone-notch {
-            width: 110px;
-            height: 20px;
-            background: #1a1a1a;
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            border-bottom-left-radius: 14px;
-            border-bottom-right-radius: 14px;
-            z-index: 20;
+            width: 110px; height: 20px; background: #1a1a1a;
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; z-index: 20;
         }
 
-        .preview-content {
-            height: 100%;
-            padding: 38px 16px 16px;
+        /* ⭐️ 폰 뒷면 전용 스타일 (카메라 크기 확대) ⭐️ */
+        .phone-back {
+            background: #334155; 
+            border-color: #0f172a;
+            display: flex; flex-direction: column; align-items: flex-end; padding: 30px 20px;
         }
+        .camera-module {
+            width: 110px; height: 120px; background: #1e293b; border-radius: 28px;
+            border: 2px solid #0f172a; display: flex; flex-wrap: wrap; gap: 10px; padding: 12px;
+            box-shadow: 4px 4px 15px rgba(0,0,0,0.4);
+        }
+        .lens { width: 36px; height: 36px; background: #000; border-radius: 50%; border: 3px solid #334155; box-shadow: inset 0 0 8px rgba(255,255,255,0.2); }
+        .flash { width: 18px; height: 18px; background: #f8fafc; border-radius: 50%; margin: 8px 0 0 8px; box-shadow: inset 0 0 4px rgba(0,0,0,0.6); }
+
+        .preview-content { height: 100%; padding: 38px 16px 16px; }
         
-        /* 폰 내부 글자 크기 커스텀 클래스 */
         .t-xl { font-size: calc(20px * var(--phone-text-scale)) !important; }
         .t-xs { font-size: calc(12px * var(--phone-text-scale)) !important; }
         .t-10 { font-size: calc(10px * var(--phone-text-scale)) !important; }
         .t-9  { font-size: calc(9px * var(--phone-text-scale)) !important; }
-
-        #phone-inner * {
-            line-height: var(--phone-lh) !important;
-        }
+        #phone-inner * { line-height: var(--phone-lh) !important; }
 
         .profile-img-container {
-            width: 65px; 
-            height: 65px; 
-            border-radius: 50%;
-            overflow: hidden;
-            background: #f1f5f9;
-            border: 2.5px solid var(--accent-color, #6366f1);
-            position: relative;
+            width: 65px; height: 65px; border-radius: 50%; overflow: hidden;
+            background: #f1f5f9; border: 2.5px solid var(--accent-color); position: relative;
         }
-        .profile-img-container img {
-            position: absolute;
-            max-width: none;
-        }
+        .profile-img-container img { position: absolute; max-width: none; }
         
         .tag {
             font-size: calc(10.4px * var(--phone-text-scale));
             padding: calc(3px * var(--phone-text-scale)) calc(8px * var(--phone-text-scale));
-            border-radius: 12px;
-            margin-right: 4px;
-            margin-bottom: 4px;
-            display: inline-block;
-            font-weight: bold;
+            border-radius: 12px; margin-right: 4px; margin-bottom: 4px; display: inline-block; font-weight: bold;
         }
 
-        /* 스티커 및 텍스트 래퍼 스타일 */
-        .sticker-wrapper, .text-sticker {
-            position: absolute;
-            border: 2px dashed transparent;
-            cursor: move;
-            transition: border 0.2s;
-            transform-origin: center center;
-            box-sizing: border-box;
-            user-select: none;
+        /* 개체 래퍼 */
+        .sticker-wrapper, .text-sticker, .collage-wrapper {
+            position: absolute; border: 2px dashed transparent;
+            cursor: move; transition: border 0.2s; transform-origin: center center;
+            box-sizing: border-box; user-select: none;
         }
-        .sticker-wrapper:hover, .text-sticker:hover,
-        .sticker-wrapper.selected, .text-sticker.selected {
+        .sticker-wrapper:hover, .text-sticker:hover, .collage-wrapper:hover,
+        .sticker-wrapper.selected, .text-sticker.selected, .collage-wrapper.selected {
             border-color: #ef4444; 
         }
         
         .sticker-content {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
+            width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+            transition: filter 0.3s;
         }
-        .sticker-content img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            pointer-events: none;
-        }
+        .sticker-content img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+        .text-sticker span { display: block; transition: text-shadow 0.3s, -webkit-text-stroke 0.3s; }
 
-        .text-sticker {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1e293b;
-            padding: 8px;
-            min-width: 50px;
-            text-align: center;
-            white-space: nowrap;
-        }
+        /* 콜라주 프레임 */
+        .collage-grid { width: 100%; height: 100%; display: grid; gap: 4px; pointer-events: auto; }
+        .collage-cell { background: #cbd5e1; background-size: cover; background-position: center; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; }
+        .collage-cell:hover { opacity: 0.9; }
 
         /* 조작 핸들 */
-        .resize-handle {
-            position: absolute; right: -8px; bottom: -8px;
-            width: 18px; height: 18px; background: #3b82f6; cursor: se-resize;
-            opacity: 0; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10;
-        }
-        .rotate-handle {
-            position: absolute; left: 50%; top: -26px; transform: translateX(-50%);
-            width: 18px; height: 18px; background: #ef4444; cursor: crosshair;
-            opacity: 0; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10;
-        }
-        .delete-btn {
-            position: absolute; top: -12px; right: -12px;
-            background: #1e293b; color: white; width: 24px; height: 24px;
-            opacity: 0; display: flex; align-items: center; justify-content: center;
-            font-size: 10px; cursor: pointer; border-radius: 50%; z-index: 10; border: 2px solid white;
-        }
+        .resize-handle { position: absolute; right: -8px; bottom: -8px; width: 18px; height: 18px; background: #3b82f6; cursor: se-resize; opacity: 0; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
+        .rotate-handle { position: absolute; left: 50%; top: -26px; transform: translateX(-50%); width: 18px; height: 18px; background: #ef4444; cursor: crosshair; opacity: 0; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
+        .delete-btn { position: absolute; top: -12px; right: -12px; background: #1e293b; color: white; width: 24px; height: 24px; opacity: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; border-radius: 50%; z-index: 10; border: 2px solid white; }
+        
         .sticker-wrapper:hover .resize-handle, .sticker-wrapper:hover .rotate-handle, .sticker-wrapper:hover .delete-btn,
         .text-sticker:hover .rotate-handle, .text-sticker:hover .delete-btn,
+        .collage-wrapper:hover .resize-handle, .collage-wrapper:hover .rotate-handle, .collage-wrapper:hover .delete-btn,
         .sticker-wrapper.selected .resize-handle, .sticker-wrapper.selected .rotate-handle, .sticker-wrapper.selected .delete-btn,
-        .text-sticker.selected .rotate-handle, .text-sticker.selected .delete-btn {
-            opacity: 1;
-        }
+        .text-sticker.selected .rotate-handle, .text-sticker.selected .delete-btn,
+        .collage-wrapper.selected .resize-handle, .collage-wrapper.selected .rotate-handle, .collage-wrapper.selected .delete-btn { opacity: 1; }
 
         /* 컨트롤 패널 */
-        .control-panel {
-            background: white;
-            border-right: 1px solid #e2e8f0;
-            padding: 24px;
-            height: 100vh;
-            overflow-y: auto;
-            width: 420px;
-            flex-shrink: 0;
-        }
+        .control-panel { background: white; border-right: 1px solid #e2e8f0; padding: 24px; height: 100vh; overflow-y: auto; width: 420px; flex-shrink: 0; }
         .control-panel::-webkit-scrollbar { width: 6px; }
         .control-panel::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
         
         .input-group { margin-bottom: 16px; }
-        label { display: block; font-weight: 700; margin-bottom: 4px; font-size: 0.8rem; color: #64748b; }
+        label { display: block; font-weight: 700; margin-bottom: 4px; font-size: 0.8rem; color: #475569; }
+        input[type="text"], select { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; outline: none; }
+        input:focus { border-color: #334155; }
         
-        input[type="text"], select {
-            width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1;
-            border-radius: 6px; font-size: 0.85rem; outline: none;
-        }
-        input:focus { border-color: #6366f1; }
-        
-        .editable-div {
-            width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1;
-            border-radius: 6px; min-height: 50px; font-size: 0.85rem;
-            outline: none; background: #fff;
-        }
-        .editable-div b, .editable-div strong { color: var(--accent-color, #6366f1); font-weight: 900; }
+        .editable-div { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; min-height: 50px; font-size: 0.85rem; outline: none; background: #fff; }
+        .editable-div b, .editable-div strong { color: var(--accent-color); font-weight: 900; }
 
         .chip-container { display: flex; flex-wrap: wrap; gap: 4px; }
-        .chip {
-            padding: 4px 12px; border-radius: 20px; background: #f1f5f9;
-            cursor: pointer; font-size: 0.75rem; font-weight: 500;
-            transition: 0.2s; border: 1px solid transparent;
-        }
-        .chip.active { background: #6366f1; color: white; border-color: #4f46e5; }
+        .chip { padding: 4px 12px; border-radius: 20px; background: #f1f5f9; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: 0.2s; border: 1px solid transparent; color: #475569;}
+        .chip.active { background: #334155; color: white; border-color: #0f172a; }
     </style>
 </head>
 <body class="flex h-screen">
 
     <div id="notice-modal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm" style="display: none;">
         <div class="bg-white p-7 rounded-2xl shadow-2xl w-[90%] max-w-md">
-            <h2 class="text-xl font-black mb-4 text-indigo-600 border-b border-slate-100 pb-3"><i class="fa-solid fa-circle-exclamation"></i> 주의사항</h2>
+            <h2 class="text-xl font-black mb-4 text-slate-800 border-b border-slate-200 pb-3"><i class="fa-solid fa-circle-exclamation"></i> 주의사항</h2>
             <div class="text-[13px] text-slate-700 space-y-3 mb-6 font-medium leading-relaxed">
-                <p>본 이미지는 <strong class="text-indigo-600">비상업적 용도</strong>로만 사용 가능합니다.</p>
+                <p>본 이미지는 <strong class="text-slate-900">비상업적 용도</strong>로만 사용 가능합니다.</p>
                 <p>AI장르를 기반으로 만들었으며 AI장르 안에서 자유롭게 사용해주세요.</p>
                 <p>편집은 자유롭게 해주세요.</p>
-                <p class="font-bold text-red-500 bg-red-50 p-2 rounded-lg">다른 분들의 이용을 위해 제작자 아이디를 지우지 말아주세요.</p>
+                <p class="font-bold text-slate-800 bg-slate-100 p-2 rounded-lg border border-slate-300">다른 분들의 이용을 위해 제작자 아이디를 지우지 말아주세요.</p>
             </div>
             <div class="flex items-center justify-between mt-6">
-                <label class="flex items-center gap-2 text-xs text-slate-500 cursor-pointer font-bold select-none">
-                    <input type="checkbox" id="never-show-again" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer font-bold select-none">
+                    <input type="checkbox" id="never-show-again" class="w-4 h-4 rounded border-slate-300 text-slate-800 focus:ring-slate-800 cursor-pointer">
                     다시 보지 않기
                 </label>
-                <button id="btn-close-modal" class="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-black transition-colors">닫기</button>
+                <button id="btn-close-modal" class="bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-black transition-colors">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="crop-modal" class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-white p-5 rounded-2xl shadow-2xl w-[90%] max-w-2xl">
+            <h3 class="text-lg font-bold mb-3 text-slate-800"><i class="fa-solid fa-crop-simple"></i> 이미지 자유롭게 자르기</h3>
+            <div class="h-[400px] bg-slate-100 flex items-center justify-center overflow-hidden rounded-lg mb-4">
+                <img id="crop-image" src="" class="max-w-full max-h-full">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button id="btn-crop-cancel" class="px-5 py-2 bg-slate-200 rounded-lg font-bold text-slate-700 hover:bg-slate-300">취소</button>
+                <button id="btn-crop-apply" class="px-5 py-2 bg-slate-800 text-white rounded-lg font-bold hover:bg-black">자르기 적용</button>
             </div>
         </div>
     </div>
 
     <aside class="control-panel">
-        <h2 class="text-xl font-black mb-6 flex items-center gap-2">
-            <i class="fa-solid fa-wand-magic-sparkles text-indigo-500"></i>
-            프로필 커스텀 메이커
+        <h2 class="text-xl font-black mb-6 flex items-center gap-2 text-slate-800">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 프로필 커스텀 메이커
         </h2>
 
         <div class="bg-slate-50 p-4 rounded-xl mb-6 border border-slate-200">
             <h3 class="font-bold text-xs uppercase text-slate-500 mb-3 tracking-widest">Canvas Design</h3>
-            
             <div class="grid grid-cols-2 gap-3 mb-4">
-                <div>
-                    <label>단색 배경색</label>
-                    <input type="color" id="input-bg" value="#ffffff" class="w-full h-8 cursor-pointer border-none rounded">
-                </div>
-                <div>
-                    <label>포인트 컬러</label>
-                    <input type="color" id="input-accent" value="#6366f1" class="w-full h-8 cursor-pointer border-none rounded">
-                </div>
+                <div><label>단색 배경색</label><input type="color" id="input-bg" value="#ffffff" class="w-full h-8 cursor-pointer border-none rounded"></div>
+                <div><label>포인트 컬러</label><input type="color" id="input-accent" value="#334155" class="w-full h-8 cursor-pointer border-none rounded"></div>
             </div>
             
             <details class="group mb-4 border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm [&_summary::-webkit-details-marker]:hidden">
-                <summary class="p-3 cursor-pointer select-none flex justify-between items-center text-slate-600 font-bold text-xs bg-slate-50" style="list-style: none;">
-                    <span><i class="fa-solid fa-image w-4"></i> 배경 이미지 및 그라데이션 설정</span>
+                <summary class="p-3 cursor-pointer select-none flex justify-between items-center text-slate-700 font-bold text-xs bg-slate-100" style="list-style: none;">
+                    <span><i class="fa-solid fa-image w-4"></i> 배경 이미지 & 그라데이션</span>
                     <i class="fa-solid fa-chevron-down transition-transform duration-200 group-open:rotate-180"></i>
                 </summary>
-                <div class="p-4 bg-white border-t border-slate-100">
+                <div class="p-4 bg-white border-t border-slate-200">
                     <div class="mb-4">
                         <label class="flex justify-between items-center mb-1">
-                            <span class="text-slate-600 font-bold text-[11px]"><i class="fa-regular fa-image"></i> 배경 사진 업로드</span>
-                            <button id="btn-delete-bg" class="text-[10px] bg-red-50 text-red-500 border border-red-200 px-2 py-0.5 rounded hover:bg-red-100 transition-colors">이미지 삭제</button>
+                            <span class="text-slate-600 font-bold text-[11px]">배경 사진 업로드</span>
+                            <button id="btn-delete-bg" class="text-[10px] bg-slate-200 text-slate-600 border border-slate-300 px-2 py-0.5 rounded hover:bg-slate-300 transition-colors">이미지 삭제</button>
                         </label>
                         <input type="file" id="bg-img-input" accept="image/*" class="text-xs w-full cursor-pointer border p-1 bg-white rounded">
                     </div>
-
-                    <div class="p-3 border border-slate-200 rounded-lg shadow-sm bg-slate-50">
-                        <label class="text-indigo-600 mb-2"><i class="fa-solid fa-layer-group"></i> 배경 그라데이션 오버레이</label>
+                    <div class="p-3 border border-slate-200 rounded-lg bg-slate-50">
+                        <label class="text-slate-700 mb-2 font-bold text-[11px]">배경 그라데이션 오버레이</label>
                         <div class="grid grid-cols-2 gap-3 mb-2">
-                            <div>
-                                <label class="text-[10px] text-slate-500">시작 색상 & 투명도</label>
-                                <input type="color" id="grad-c1" value="#000000" class="w-full h-6 border-none cursor-pointer">
-                                <input type="range" id="grad-a1" min="0" max="1" step="0.05" value="0" class="w-full mt-1">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-slate-500">끝 색상 & 투명도</label>
-                                <input type="color" id="grad-c2" value="#000000" class="w-full h-6 border-none cursor-pointer">
-                                <input type="range" id="grad-a2" min="0" max="1" step="0.05" value="0" class="w-full mt-1">
-                            </div>
+                            <div><label class="text-[10px] text-slate-500">시작 색상/투명도</label><input type="color" id="grad-c1" value="#000000" class="w-full h-6 border-none cursor-pointer"><input type="range" id="grad-a1" min="0" max="1" step="0.05" value="0" class="w-full mt-1"></div>
+                            <div><label class="text-[10px] text-slate-500">끝 색상/투명도</label><input type="color" id="grad-c2" value="#000000" class="w-full h-6 border-none cursor-pointer"><input type="range" id="grad-a2" min="0" max="1" step="0.05" value="0" class="w-full mt-1"></div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold text-slate-500">방향(각도)</span>
+                            <span class="text-[10px] font-bold text-slate-500">각도</span>
                             <input type="range" id="grad-angle" min="0" max="360" value="180" class="flex-1">
                         </div>
                     </div>
@@ -300,52 +227,94 @@
             
             <hr class="my-4 border-slate-200">
 
-            <label class="text-indigo-600"><i class="fa-solid fa-star"></i> 스티커 추가하기</label>
-            <input type="file" id="sticker-input" accept="image/*" class="text-xs w-full cursor-pointer mb-3 border p-1 bg-white rounded">
+            <label class="text-slate-800"><i class="fa-solid fa-layer-group"></i> 개체(이미지/텍스트) 추가</label>
+            <input type="file" id="sticker-input" accept="image/*" class="text-xs w-full cursor-pointer mb-2 border p-1 bg-white rounded" title="이미지 추가하기">
             
             <div class="flex gap-2 mb-3">
                 <input type="color" id="text-sticker-color" value="#1e293b" class="w-8 h-8 border-none cursor-pointer shrink-0 rounded">
-                <input type="text" id="text-sticker-input" placeholder="텍스트 입력 후 오른쪽 버튼 클릭" class="flex-1 text-xs px-2 border border-slate-300 rounded outline-none">
-                <button id="btn-add-text" class="bg-indigo-500 text-white text-xs font-bold px-3 rounded hover:bg-indigo-600 transition">텍스트 추가</button>
+                <input type="text" id="text-sticker-input" placeholder="텍스트 입력" class="flex-1 text-xs px-2 border border-slate-300 rounded outline-none">
+                <button id="btn-add-text" class="bg-slate-700 text-white text-xs font-bold px-3 rounded hover:bg-slate-800 transition">텍스트 추가</button>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-[11px] text-slate-600"><i class="fa-solid fa-border-all"></i> 콜라주 프레임 추가 (클릭 시 생성)</label>
+                <div class="flex gap-2 mt-1">
+                    <button class="btn-add-collage flex-1 bg-slate-100 border border-slate-300 py-1 rounded text-xs font-bold text-slate-700 hover:bg-slate-200" data-cols="2">2컷 분할</button>
+                    <button class="btn-add-collage flex-1 bg-slate-100 border border-slate-300 py-1 rounded text-xs font-bold text-slate-700 hover:bg-slate-200" data-cols="3">3컷 분할</button>
+                    <button class="btn-add-collage flex-1 bg-slate-100 border border-slate-300 py-1 rounded text-xs font-bold text-slate-700 hover:bg-slate-200" data-cols="4">4컷 분할</button>
+                </div>
             </div>
             
-            <button id="btn-clear-stickers" class="w-full bg-red-50 text-red-500 border border-red-200 text-xs font-bold py-2 rounded hover:bg-red-100 transition-colors mb-2">
-                <i class="fa-solid fa-trash-can"></i> 스티커 일괄 삭제
+            <button id="btn-clear-stickers" class="w-full bg-slate-100 text-slate-600 border border-slate-300 text-xs font-bold py-2 rounded hover:bg-slate-200 transition-colors mb-2">
+                <i class="fa-solid fa-trash-can"></i> 개체 일괄 삭제
             </button>
 
-            <div id="selected-controls" style="display:none;" class="bg-yellow-50 p-3 rounded-lg border border-yellow-300 mt-4 shadow-inner">
+            <div id="selected-controls" style="display:none;" class="bg-slate-100 p-3 rounded-lg border border-slate-300 mt-4 shadow-inner">
                 <div class="flex justify-between items-center mb-2">
-                    <p class="text-xs font-bold text-yellow-700">✨ 선택된 개체 설정</p>
-                    <button id="btn-deselect" class="text-[10px] bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded hover:bg-yellow-300">선택 해제</button>
+                    <p class="text-xs font-bold text-slate-800">✨ 선택된 개체 편집</p>
+                    <button id="btn-deselect" class="text-[10px] bg-slate-300 text-slate-800 px-2 py-0.5 rounded hover:bg-slate-400">선택 해제</button>
                 </div>
                 
-                <p class="text-[10px] text-yellow-800 mb-1 font-bold">레이어 순서 조정</p>
+                <p class="text-[10px] text-slate-600 mb-1 font-bold">레이어 순서 조정</p>
                 <div class="grid grid-cols-2 gap-1 mb-3">
-                    <button id="btn-layer-top" class="bg-white border border-yellow-300 text-[10px] py-1.5 rounded font-bold hover:bg-yellow-100">맨 앞으로</button>
-                    <button id="btn-layer-up" class="bg-white border border-yellow-300 text-[10px] py-1.5 rounded font-bold hover:bg-yellow-100">앞으로 (+1)</button>
-                    <button id="btn-layer-down" class="bg-white border border-yellow-300 text-[10px] py-1.5 rounded font-bold hover:bg-yellow-100">뒤로 (-1)</button>
-                    <button id="btn-layer-bottom" class="bg-white border border-yellow-300 text-[10px] py-1.5 rounded font-bold hover:bg-yellow-100">맨 뒤로</button>
+                    <button id="btn-layer-top" class="bg-white border border-slate-300 text-[10px] py-1.5 rounded font-bold hover:bg-slate-50">맨 앞으로</button>
+                    <button id="btn-layer-up" class="bg-white border border-slate-300 text-[10px] py-1.5 rounded font-bold hover:bg-slate-50">앞으로 (+1)</button>
+                    <button id="btn-layer-down" class="bg-white border border-slate-300 text-[10px] py-1.5 rounded font-bold hover:bg-slate-50">뒤로 (-1)</button>
+                    <button id="btn-layer-bottom" class="bg-white border border-slate-300 text-[10px] py-1.5 rounded font-bold hover:bg-slate-50">맨 뒤로</button>
                 </div>
 
-                <div id="selected-img-controls" class="space-y-2">
+                <div id="selected-img-controls" class="space-y-2 border-t border-slate-200 pt-2">
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="text-[10px] text-slate-600 font-bold"><i class="fa-solid fa-image"></i> 이미지 편집</p>
+                        <button id="btn-open-crop" class="text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-200 px-2 py-0.5 rounded hover:bg-indigo-100 font-bold hidden"><i class="fa-solid fa-crop"></i> 자르기</button>
+                    </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-[10px] w-12 text-slate-600 font-bold">테두리두께</span>
+                        <span class="text-[10px] w-14 text-slate-600 font-bold">발광/그림자색</span>
+                        <input type="color" id="sel-img-glow-c" value="#ffffff" class="w-full h-6 border-none cursor-pointer rounded">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] w-14 text-slate-600 font-bold">발광 크기</span>
+                        <input type="range" id="sel-img-glow-s" min="0" max="50" value="0" class="flex-1">
+                    </div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[10px] w-14 text-slate-600 font-bold">테두리두께</span>
                         <input type="range" id="sel-b-width" min="0" max="30" value="0" class="flex-1">
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-[10px] w-12 text-slate-600 font-bold">테두리색상</span>
+                        <span class="text-[10px] w-14 text-slate-600 font-bold">테두리색상</span>
                         <input type="color" id="sel-b-color" value="#ffffff" class="w-full h-6 border-none cursor-pointer rounded">
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-[10px] w-12 text-slate-600 font-bold">둥글기(%)</span>
+                        <span class="text-[10px] w-14 text-slate-600 font-bold">둥글기(%)</span>
                         <input type="range" id="sel-b-radius" min="0" max="50" value="0" class="flex-1">
                     </div>
                 </div>
 
-                <div id="selected-text-controls" style="display:none;" class="space-y-2">
-                    <div class="flex items-center gap-2 mt-2">
+                <div id="selected-text-controls" style="display:none;" class="space-y-2 border-t border-slate-200 pt-2">
+                    <p class="text-[10px] text-slate-600 font-bold mb-1"><i class="fa-solid fa-font"></i> 글씨 편집</p>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] w-12 text-slate-600 font-bold">글씨 수정</span>
+                        <input type="text" id="sel-t-text" class="flex-1 text-[10px] py-1">
+                    </div>
+                    <div class="flex items-center gap-2">
                         <span class="text-[10px] w-12 text-slate-600 font-bold">글자 크기</span>
                         <input type="range" id="sel-t-size" min="10" max="150" value="24" class="flex-1">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] w-12 text-slate-600 font-bold">외곽선 굵기</span>
+                        <input type="range" id="sel-t-stroke-w" min="0" max="10" value="0" class="flex-1">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] w-12 text-slate-600 font-bold">외곽선 색상</span>
+                        <input type="color" id="sel-t-stroke-c" value="#ffffff" class="w-full h-6 border-none cursor-pointer rounded">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] w-12 text-slate-600 font-bold">발광 크기</span>
+                        <input type="range" id="sel-t-glow-s" min="0" max="30" value="0" class="flex-1">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] w-12 text-slate-600 font-bold">발광 색상</span>
+                        <input type="color" id="sel-t-glow-c" value="#ffffff" class="w-full h-6 border-none cursor-pointer rounded">
                     </div>
                 </div>
             </div>
@@ -355,37 +324,59 @@
         <div class="mb-6">
             <h3 class="font-bold text-xs uppercase text-slate-500 mb-3 tracking-widest">Phone Settings</h3>
             
-            <details class="group mb-2 border border-blue-200 rounded-xl overflow-hidden bg-blue-50 [&_summary::-webkit-details-marker]:hidden" open>
-                <summary class="p-3 cursor-pointer select-none flex justify-between items-center text-blue-700 font-bold text-xs" style="list-style: none;">
-                    <span><i class="fa-solid fa-mobile-screen w-4"></i> 폰 기기 조작 (크기/이동/회전)</span>
+            <details class="group mb-2 border border-slate-300 rounded-xl overflow-hidden bg-slate-100 [&_summary::-webkit-details-marker]:hidden" open>
+                <summary class="p-3 cursor-pointer select-none flex justify-between items-center text-slate-800 font-bold text-xs" style="list-style: none;">
+                    <span><i class="fa-solid fa-mobile-screen w-4"></i> 폰 기기 조작 (마우스 드래그 지원)</span>
                     <i class="fa-solid fa-chevron-down transition-transform duration-200 group-open:rotate-180"></i>
                 </summary>
-                <div class="p-4 bg-white border-t border-blue-100 space-y-2">
+                <div class="p-4 bg-white border-t border-slate-200 space-y-2">
+                    <p class="text-[10px] text-slate-500 mb-2">※ 캔버스 안에서 폰(앞/뒷면)을 직접 마우스로 잡아 끌 수 있습니다.</p>
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] w-14 text-slate-600 font-bold">기기 크기</span>
                         <input type="range" id="ui-phone-scale" min="0.5" max="2" step="0.05" value="1" class="flex-1">
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] w-14 text-slate-600 font-bold">가로 이동</span>
-                        <input type="range" id="ui-phone-x" min="-500" max="800" step="10" value="120" class="flex-1">
+                        <input type="range" id="ui-phone-x" min="-500" max="800" step="1" value="120" class="flex-1">
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] w-14 text-slate-600 font-bold">세로 이동</span>
-                        <input type="range" id="ui-phone-y" min="-300" max="600" step="10" value="60" class="flex-1">
+                        <input type="range" id="ui-phone-y" min="-300" max="600" step="1" value="60" class="flex-1">
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] w-14 text-slate-600 font-bold">기기 회전</span>
                         <input type="range" id="ui-phone-rotate" min="-180" max="180" step="1" value="-13" class="flex-1">
                     </div>
+                    
+                    <hr class="my-2 border-slate-100">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="flex items-center gap-2 text-[11px] font-bold text-slate-800 cursor-pointer">
+                            <input type="checkbox" id="toggle-phone-back" checked class="rounded border-slate-300 cursor-pointer">
+                            우측 폰 뒷면 표시하기
+                        </label>
+                        <input type="color" id="phone-back-color" value="#334155" class="w-6 h-6 border-none cursor-pointer rounded" title="뒷면 색상 변경">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] w-14 text-slate-500">뒷면 가로</span>
+                        <input type="range" id="ui-back-x" min="-500" max="1000" step="1" value="600" class="flex-1">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] w-14 text-slate-500">뒷면 세로</span>
+                        <input type="range" id="ui-back-y" min="-300" max="600" step="1" value="100" class="flex-1">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] w-14 text-slate-500">뒷면 회전</span>
+                        <input type="range" id="ui-back-rotate" min="-180" max="180" step="1" value="15" class="flex-1">
+                    </div>
                 </div>
             </details>
 
-            <details class="group mb-2 border border-emerald-200 rounded-xl overflow-hidden bg-emerald-50 [&_summary::-webkit-details-marker]:hidden">
-                <summary class="p-3 cursor-pointer select-none flex justify-between items-center text-emerald-700 font-bold text-xs" style="list-style: none;">
+            <details class="group mb-2 border border-slate-300 rounded-xl overflow-hidden bg-slate-100 [&_summary::-webkit-details-marker]:hidden">
+                <summary class="p-3 cursor-pointer select-none flex justify-between items-center text-slate-800 font-bold text-xs" style="list-style: none;">
                     <span><i class="fa-solid fa-align-left w-4"></i> 폰 텍스트 스타일</span>
                     <i class="fa-solid fa-chevron-down transition-transform duration-200 group-open:rotate-180"></i>
                 </summary>
-                <div class="p-4 bg-white border-t border-emerald-100">
+                <div class="p-4 bg-white border-t border-slate-200">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="text-[10px] w-16 text-slate-600 font-bold">글자 크기</span>
                         <input type="range" id="ui-phone-text-scale" min="0.5" max="2" step="0.05" value="1" class="flex-1">
@@ -397,12 +388,12 @@
                 </div>
             </details>
 
-            <details class="group border border-indigo-200 rounded-xl overflow-hidden bg-indigo-50 [&_summary::-webkit-details-marker]:hidden">
-                <summary class="p-3 cursor-pointer select-none flex justify-between items-center text-indigo-700 font-bold text-xs" style="list-style: none;">
-                    <span><i class="fa-solid fa-user-circle w-4"></i> 폰 프로필 사진</span>
+            <details class="group border border-slate-300 rounded-xl overflow-hidden bg-slate-100 [&_summary::-webkit-details-marker]:hidden">
+                <summary class="p-3 cursor-pointer select-none flex justify-between items-center text-slate-800 font-bold text-xs" style="list-style: none;">
+                    <span><i class="fa-solid fa-user-circle w-4"></i> 폰 앞면 프로필 사진</span>
                     <i class="fa-solid fa-chevron-down transition-transform duration-200 group-open:rotate-180"></i>
                 </summary>
-                <div class="p-4 bg-white border-t border-indigo-100">
+                <div class="p-4 bg-white border-t border-slate-200">
                     <input type="file" id="img-input" accept="image/*" class="text-xs w-full mb-3 bg-white p-1 rounded border">
                     <div class="space-y-2">
                         <div class="flex items-center gap-2">
@@ -444,7 +435,7 @@
         </div>
 
         <div class="mb-6">
-            <label class="mb-2 text-indigo-500"><i class="fa-solid fa-heart"></i> 성향 (장르)</label>
+            <label class="mb-2 text-slate-700"><i class="fa-solid fa-heart"></i> 성향 (장르)</label>
             <div class="chip-container mb-4" id="chips-1">
                 <div class="chip" data-val="BL">BL</div>
                 <div class="chip" data-val="HL">HL</div>
@@ -454,7 +445,7 @@
                 <div class="chip" data-val="DREAM">DREAM</div>
             </div>
 
-            <label class="mb-2 text-indigo-500"><i class="fa-solid fa-gamepad"></i> 계정성향 (활동)</label>
+            <label class="mb-2 text-slate-700"><i class="fa-solid fa-gamepad"></i> 계정성향 (활동)</label>
             <div class="chip-container mb-2" id="chips-2">
                 <div class="chip" data-val="구독">구독</div>
                 <div class="chip" data-val="소비">소비</div>
@@ -466,7 +457,7 @@
             </div>
             <div class="flex gap-2">
                 <input type="text" id="input-etc" placeholder="기타 항목 직접 입력" class="text-xs">
-                <button id="btn-add-etc" class="bg-slate-200 px-3 rounded text-xs font-bold hover:bg-slate-300">추가</button>
+                <button id="btn-add-etc" class="bg-slate-300 px-3 rounded text-xs font-bold hover:bg-slate-400">추가</button>
             </div>
         </div>
 
@@ -492,7 +483,7 @@
             <div class="input-group mb-0">
                 <div class="flex justify-between items-center mb-1">
                     <label class="mb-0">INFO</label>
-                    <button type="button" onmousedown="event.preventDefault(); document.execCommand('bold', false, null);" class="text-[10px] bg-slate-100 border border-slate-300 px-2 py-0.5 rounded hover:bg-slate-200">
+                    <button type="button" onmousedown="event.preventDefault(); document.execCommand('bold', false, null);" class="text-[10px] bg-slate-200 border border-slate-300 px-2 py-0.5 rounded hover:bg-slate-300 text-slate-700">
                         <i class="fa-solid fa-bold"></i> 볼드 적용
                     </button>
                 </div>
@@ -500,8 +491,8 @@
             </div>
             <div class="input-group mb-0">
                 <div class="flex justify-between items-center mb-1">
-                    <label class="mb-0 text-red-500">NG</label>
-                    <button type="button" onmousedown="event.preventDefault(); document.execCommand('bold', false, null);" class="text-[10px] bg-slate-100 border border-slate-300 px-2 py-0.5 rounded hover:bg-slate-200">
+                    <label class="mb-0 text-slate-800">NG</label>
+                    <button type="button" onmousedown="event.preventDefault(); document.execCommand('bold', false, null);" class="text-[10px] bg-slate-200 border border-slate-300 px-2 py-0.5 rounded hover:bg-slate-300 text-slate-700">
                         <i class="fa-solid fa-bold"></i> 볼드 적용
                     </button>
                 </div>
@@ -509,63 +500,72 @@
             </div>
         </div>
 
-        <button id="btn-save-img" class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-black transition-all shadow-xl flex items-center justify-center gap-2 mb-10">
+        <button id="btn-save-img" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-black transition-all shadow-xl flex items-center justify-center gap-2 mb-10">
             <i class="fa-solid fa-image"></i> 깔끔하게 이미지로 저장하기
         </button>
     </aside>
 
     <main class="preview-container">
         <div id="capture-area">
-            
             <div id="gradient-overlay" style="position: absolute; inset: 0; z-index: 0; pointer-events: none;"></div>
 
-            <div id="phone-wrapper" style="position: absolute; left: 120px; top: 60px; transform: rotate(-13deg) scale(1); transform-origin: center center; z-index: 1;">
+            <div id="phone-back-wrapper" style="position: absolute; left: 600px; top: 100px; transform: rotate(15deg) scale(1); transform-origin: center center; z-index: 1;">
+                <div id="phone-back-frame" class="phone-frame phone-back">
+                    <div class="camera-module">
+                        <div class="lens"></div>
+                        <div class="lens"></div>
+                        <div class="flash"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="phone-wrapper" style="position: absolute; left: 120px; top: 60px; transform: rotate(-13deg) scale(1); transform-origin: center center; z-index: 2;">
                 <div class="phone-frame">
                     <div class="phone-notch"></div>
                     <div class="preview-content" id="phone-inner">
                         
                         <div class="flex items-center gap-4 mb-6 border-b border-slate-100 pb-5">
                             <div class="profile-img-container shrink-0" id="p-img-frame">
-                                <img src="https://placehold.co/200x200/f1f5f9/94a3b8?text=Photo" id="p-img" alt="Profile">
+                                <img src="https://placehold.co/200x200/e2e8f0/94a3b8?text=Photo" id="p-img" alt="Profile">
                             </div>
                             <div>
                                 <h3 id="p-nickname" class="t-xl font-black">닉네임</h3>
-                                <p id="p-id" class="t-10 text-slate-400 font-medium mt-0.5">@id</p>
+                                <p id="p-id" class="t-10 text-slate-500 font-medium mt-0.5">@id</p>
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <p class="t-9 font-bold text-slate-300 uppercase tracking-widest mb-1">Platform</p>
-                            <p id="p-platform" class="t-xs font-bold text-slate-700">Twitter / X</p>
+                            <p class="t-9 font-bold text-slate-400 uppercase tracking-widest mb-1">Platform</p>
+                            <p id="p-platform" class="t-xs font-bold text-slate-800">Twitter / X</p>
                         </div>
 
                         <div class="mb-4">
-                            <p class="t-9 font-bold text-slate-300 uppercase tracking-widest mb-1">성향</p>
+                            <p class="t-9 font-bold text-slate-400 uppercase tracking-widest mb-1">성향</p>
                             <div id="p-tags1" class="flex flex-wrap gap-1"></div>
                         </div>
                         <div class="mb-5">
-                            <p class="t-9 font-bold text-slate-300 uppercase tracking-widest mb-1">계정성향</p>
+                            <p class="t-9 font-bold text-slate-400 uppercase tracking-widest mb-1">계정성향</p>
                             <div id="p-tags2" class="flex flex-wrap gap-1"></div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2 mb-5">
-                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                <p class="t-9 text-slate-400 font-bold mb-1">이별</p>
-                                <p id="p-farewell" class="t-xs font-black text-slate-700">블언블</p>
+                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                <p class="t-9 text-slate-500 font-bold mb-1">이별</p>
+                                <p id="p-farewell" class="t-xs font-black text-slate-800">블언블</p>
                             </div>
-                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                <p class="t-9 text-slate-400 font-bold mb-1">타장르</p>
-                                <p id="p-other" class="t-xs font-black text-slate-700">OK</p>
+                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                <p class="t-9 text-slate-500 font-bold mb-1">타장르</p>
+                                <p id="p-other" class="t-xs font-black text-slate-800">OK</p>
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <p class="t-9 font-bold text-indigo-300 uppercase mb-1">INFO</p>
-                            <div id="p-info" class="t-xs text-slate-600 break-all min-h-[20px]"></div>
+                            <p class="t-9 font-bold text-slate-500 uppercase mb-1">INFO</p>
+                            <div id="p-info" class="t-xs text-slate-700 break-all min-h-[20px]"></div>
                         </div>
                         <div class="mb-2">
-                            <p class="t-9 font-bold text-red-300 uppercase mb-1">NG</p>
-                            <div id="p-ng" class="t-xs text-slate-600 break-all min-h-[20px]"></div>
+                            <p class="t-9 font-bold text-slate-500 uppercase mb-1">NG</p>
+                            <div id="p-ng" class="t-xs text-slate-700 break-all min-h-[20px]"></div>
                         </div>
                         
                     </div>
@@ -574,6 +574,8 @@
 
         </div>
     </main>
+
+    <input type="file" id="collage-upload" accept="image/*" style="display:none;">
 
     <script>
         // ==========================================
@@ -584,12 +586,9 @@
             const btnClose = document.getElementById('btn-close-modal');
             const chkNeverShow = document.getElementById('never-show-again');
 
-            // 로컬스토리지 확인하여 팝업 띄우기
             if (!localStorage.getItem('hideNoticeModal')) {
                 modal.style.display = 'flex';
             }
-
-            // 닫기 버튼 클릭 이벤트
             btnClose.addEventListener('click', () => {
                 if (chkNeverShow.checked) {
                     localStorage.setItem('hideNoticeModal', 'true');
@@ -601,9 +600,10 @@
         // ==========================================
         // 1. 프로필 이미지 위치/크기/회전 제어 
         // ==========================================
-        const state = { accent: '#6366f1', tags1: [], tags2: [], imgScale: 1, imgX: 0, imgY: 0, imgRotate: 0 };
+        const state = { accent: '#334155', tags1: [], tags2: [], imgScale: 1, imgX: 0, imgY: 0, imgRotate: 0 };
         let highestZIndex = 10;
         let selectedObj = null;
+        let currentCollageCell = null;
 
         const el = id => document.getElementById(id);
 
@@ -632,7 +632,7 @@
         el('img-rotate').addEventListener('input', e => { state.imgRotate = parseFloat(e.target.value); updateImg(); });
 
         // ==========================================
-        // 2. 폰 텍스트 배율 / 그라데이션 / 기타 기본 바인딩
+        // 2. 폰 텍스트 배율 / 그라데이션 / 테마 세팅
         // ==========================================
         el('ui-phone-text-scale').addEventListener('input', e => document.documentElement.style.setProperty('--phone-text-scale', e.target.value));
         el('ui-phone-lh').addEventListener('input', e => document.documentElement.style.setProperty('--phone-lh', e.target.value));
@@ -700,17 +700,62 @@
             reader.readAsDataURL(file);
         });
 
-        // 폰 기기 조작
-        const phoneState = { x: 120, y: 60, scale: 1, rotate: -13 };
-        const phoneWrapper = el('phone-wrapper');
-        function updatePhoneTransform() {
-            phoneWrapper.style.left = `${phoneState.x}px`; phoneWrapper.style.top = `${phoneState.y}px`;
-            phoneWrapper.style.transform = `rotate(${phoneState.rotate}deg) scale(${phoneState.scale})`;
+        // ==========================================
+        // 2-1. 폰 기기 마우스 & 슬라이더 조작
+        // ==========================================
+        const frontState = { x: 120, y: 60, scale: 1, rotate: -13 };
+        const backState = { x: 600, y: 100, rotate: 15 };
+        
+        function updatePhoneFront() {
+            el('phone-wrapper').style.left = `${frontState.x}px`; el('phone-wrapper').style.top = `${frontState.y}px`;
+            el('phone-wrapper').style.transform = `rotate(${frontState.rotate}deg) scale(${frontState.scale})`;
         }
-        el('ui-phone-scale').addEventListener('input', e => { phoneState.scale = parseFloat(e.target.value); updatePhoneTransform(); });
-        el('ui-phone-x').addEventListener('input', e => { phoneState.x = parseFloat(e.target.value); updatePhoneTransform(); });
-        el('ui-phone-y').addEventListener('input', e => { phoneState.y = parseFloat(e.target.value); updatePhoneTransform(); });
-        el('ui-phone-rotate').addEventListener('input', e => { phoneState.rotate = parseFloat(e.target.value); updatePhoneTransform(); });
+        function updatePhoneBack() {
+            el('phone-back-wrapper').style.left = `${backState.x}px`; el('phone-back-wrapper').style.top = `${backState.y}px`;
+            el('phone-back-wrapper').style.transform = `rotate(${backState.rotate}deg) scale(${frontState.scale})`;
+        }
+
+        el('ui-phone-scale').addEventListener('input', e => { frontState.scale = parseFloat(e.target.value); updatePhoneFront(); updatePhoneBack(); });
+        el('ui-phone-x').addEventListener('input', e => { frontState.x = parseFloat(e.target.value); updatePhoneFront(); });
+        el('ui-phone-y').addEventListener('input', e => { frontState.y = parseFloat(e.target.value); updatePhoneFront(); });
+        el('ui-phone-rotate').addEventListener('input', e => { frontState.rotate = parseFloat(e.target.value); updatePhoneFront(); });
+        
+        el('ui-back-x').addEventListener('input', e => { backState.x = parseFloat(e.target.value); updatePhoneBack(); });
+        el('ui-back-y').addEventListener('input', e => { backState.y = parseFloat(e.target.value); updatePhoneBack(); });
+        el('ui-back-rotate').addEventListener('input', e => { backState.rotate = parseFloat(e.target.value); updatePhoneBack(); });
+
+        // 폰 뒷면 표시 여부 및 색상 변경
+        el('toggle-phone-back').addEventListener('change', e => {
+            el('phone-back-wrapper').style.display = e.target.checked ? 'block' : 'none';
+        });
+        el('phone-back-color').addEventListener('input', e => {
+            el('phone-back-frame').style.backgroundColor = e.target.value;
+        });
+
+        function makePhoneDraggable(wrapperId, stateObj, sliderXId, sliderYId) {
+            const wrapper = el(wrapperId);
+            let isDragging = false, startX, startY, initX, initY;
+            wrapper.addEventListener('mousedown', e => {
+                if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.classList.contains('chip')) return;
+                isDragging = true;
+                startX = e.clientX; startY = e.clientY;
+                initX = stateObj.x; initY = stateObj.y;
+                wrapper.style.cursor = 'grabbing';
+            });
+            window.addEventListener('mousemove', e => {
+                if(!isDragging) return;
+                stateObj.x = initX + (e.clientX - startX);
+                stateObj.y = initY + (e.clientY - startY);
+                wrapper.style.left = `${stateObj.x}px`;
+                wrapper.style.top = `${stateObj.y}px`;
+                el(sliderXId).value = stateObj.x;
+                el(sliderYId).value = stateObj.y;
+            });
+            window.addEventListener('mouseup', () => { isDragging = false; wrapper.style.cursor = 'default'; });
+        }
+        makePhoneDraggable('phone-wrapper', frontState, 'ui-phone-x', 'ui-phone-y');
+        makePhoneDraggable('phone-back-wrapper', backState, 'ui-back-x', 'ui-back-y');
+
 
         // 성향 칩셋 처리
         const setupChips = (container, list) => {
@@ -735,13 +780,14 @@
         };
         function renderTags() {
             el('p-tags1').innerHTML = state.tags1.map(t => `<span class="tag" style="background:${state.accent}15; color:${state.accent}; border:1px solid ${state.accent}">${t}</span>`).join('');
-            el('p-tags2').innerHTML = state.tags2.map(t => `<span class="tag" style="background:#ffffff; color:#64748b; border:1px solid #cbd5e1">${t}</span>`).join('');
+            el('p-tags2').innerHTML = state.tags2.map(t => `<span class="tag" style="background:#ffffff; color:#475569; border:1px solid #cbd5e1">${t}</span>`).join('');
         }
         el('input-farewell').onchange = e => el('p-farewell').innerText = e.target.value;
         el('input-other').onchange = e => el('p-other').innerText = e.target.value;
 
+
         // ==========================================
-        // 3. 스티커 레이어 선택/이동/회전/크기 조절 로직
+        // 3. 개체 편집 (크기 조절 로직 강화 적용)
         // ==========================================
         function selectObject(obj) {
             if (selectedObj) selectedObj.classList.remove('selected');
@@ -753,15 +799,24 @@
             obj.classList.add('selected');
             el('selected-controls').style.display = 'block';
 
-            if (obj.classList.contains('sticker-wrapper')) {
+            if (obj.classList.contains('sticker-wrapper') || obj.classList.contains('collage-wrapper')) {
                 el('selected-img-controls').style.display = 'block';
                 el('selected-text-controls').style.display = 'none';
                 el('sel-b-width').value = parseInt(obj.style.borderWidth) || 0;
                 el('sel-b-radius').value = parseInt(obj.style.borderRadius) || 0;
+                
+                // 이미지 자르기 버튼 보이기 여부
+                if(obj.classList.contains('sticker-wrapper')){
+                    el('btn-open-crop').classList.remove('hidden');
+                } else {
+                    el('btn-open-crop').classList.add('hidden');
+                }
+
             } else if (obj.classList.contains('text-sticker')) {
                 el('selected-img-controls').style.display = 'none';
                 el('selected-text-controls').style.display = 'block';
                 el('sel-t-size').value = parseInt(obj.style.fontSize) || 24;
+                el('sel-t-text').value = obj.querySelector('span').innerText;
             }
         }
 
@@ -771,16 +826,13 @@
         }
 
         function makeInteractable(obj) {
-            // 오브젝트 클릭 및 드래그 이동
             obj.addEventListener('mousedown', (e) => {
-                if (e.target.classList.contains('resize-handle') || e.target.classList.contains('rotate-handle') || e.target.classList.contains('delete-btn')) return;
+                if (e.target.classList.contains('resize-handle') || e.target.classList.contains('rotate-handle') || e.target.classList.contains('delete-btn') || e.target.classList.contains('collage-cell')) return;
                 e.stopPropagation();
                 selectObject(obj);
                 
-                let startX = e.clientX;
-                let startY = e.clientY;
-                let initX = parseInt(obj.style.left) || 0;
-                let initY = parseInt(obj.style.top) || 0;
+                let startX = e.clientX; let startY = e.clientY;
+                let initX = parseInt(obj.style.left) || 0; let initY = parseInt(obj.style.top) || 0;
                 
                 function onMouseMove(moveEvent) {
                     obj.style.left = `${initX + (moveEvent.clientX - startX)}px`;
@@ -794,14 +846,12 @@
                 window.addEventListener('mouseup', onMouseUp);
             });
             
-            // 회전 핸들 제어
             const rotateHandle = obj.querySelector('.rotate-handle');
             if (rotateHandle) {
                 rotateHandle.addEventListener('mousedown', (e) => {
                     e.stopPropagation();
                     let rect = obj.getBoundingClientRect();
-                    let centerX = rect.left + rect.width / 2;
-                    let centerY = rect.top + rect.height / 2;
+                    let centerX = rect.left + rect.width / 2; let centerY = rect.top + rect.height / 2;
                     
                     function onMouseMove(moveEvent) {
                         let angle = Math.atan2(moveEvent.clientY - centerY, moveEvent.clientX - centerX) * 180 / Math.PI;
@@ -809,16 +859,12 @@
                         obj.dataset.angle = angle;
                         updateObjTransform(obj);
                     }
-                    function onMouseUp() {
-                        window.removeEventListener('mousemove', onMouseMove);
-                        window.removeEventListener('mouseup', onMouseUp);
-                    }
-                    window.addEventListener('mousemove', onMouseMove);
-                    window.addEventListener('mouseup', onMouseUp);
+                    function onMouseUp() { window.removeEventListener('mousemove', onMouseMove); window.removeEventListener('mouseup', onMouseUp); }
+                    window.addEventListener('mousemove', onMouseMove); window.addEventListener('mouseup', onMouseUp);
                 });
             }
             
-            // 크기조절 핸들 제어 (이미지 스티커만 적용)
+            // ⭐️ 자유 크기 조정 로직 (이미지 & 콜라주) ⭐️
             const resizeHandle = obj.querySelector('.resize-handle');
             if (resizeHandle) {
                 resizeHandle.addEventListener('mousedown', (e) => {
@@ -826,125 +872,204 @@
                     let initWidth = parseInt(obj.style.width) || 120;
                     let initHeight = parseInt(obj.style.height) || 120;
                     let startX = e.clientX;
+                    let startY = e.clientY;
                     
                     function onMouseMove(moveEvent) {
                         let deltaX = moveEvent.clientX - startX;
-                        let newSize = Math.max(30, initWidth + deltaX);
-                        obj.style.width = `${newSize}px`;
-                        obj.style.height = `${newSize}px`;
+                        let deltaY = moveEvent.clientY - startY;
+                        
+                        // 마우스 이동 방향에 따라 너비와 높이를 자유롭게(각각 독립적으로) 조절
+                        obj.style.width = `${Math.max(30, initWidth + deltaX)}px`;
+                        if(obj.classList.contains('sticker-wrapper') || obj.classList.contains('collage-wrapper')){
+                            obj.style.height = `${Math.max(30, initHeight + deltaY)}px`;
+                        } else {
+                            obj.style.height = `${Math.max(30, initWidth + deltaX)}px`;
+                        }
                     }
-                    function onMouseUp() {
-                        window.removeEventListener('mousemove', onMouseMove);
-                        window.removeEventListener('mouseup', onMouseUp);
-                    }
-                    window.addEventListener('mousemove', onMouseMove);
-                    window.addEventListener('mouseup', onMouseUp);
+                    function onMouseUp() { window.removeEventListener('mousemove', onMouseMove); window.removeEventListener('mouseup', onMouseUp); }
+                    window.addEventListener('mousemove', onMouseMove); window.addEventListener('mouseup', onMouseUp);
                 });
             }
         }
 
-        // 이미지 스티커 추가 발생기
+        // 개체 래퍼 생성 기본 함수
+        function createWrapperBase(className, width, height) {
+            const wrapper = document.createElement('div');
+            wrapper.className = className;
+            wrapper.style.left = '300px'; wrapper.style.top = '200px';
+            wrapper.style.width = width; wrapper.style.height = height;
+            wrapper.style.borderWidth = '0px'; wrapper.style.borderColor = '#ffffff'; wrapper.style.borderStyle = 'solid';
+            wrapper.dataset.angle = 0;
+            highestZIndex++; wrapper.style.zIndex = highestZIndex;
+            return wrapper;
+        }
+
+        function appendControlsAndInit(wrapper) {
+            const resizeH = document.createElement('div'); resizeH.className = 'resize-handle';
+            const rotateH = document.createElement('div'); rotateH.className = 'rotate-handle';
+            const delBtn = document.createElement('div'); delBtn.className = 'delete-btn'; delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            delBtn.onclick = (e) => { e.stopPropagation(); wrapper.remove(); selectObject(null); };
+
+            wrapper.appendChild(resizeH); wrapper.appendChild(rotateH); wrapper.appendChild(delBtn);
+            el('capture-area').appendChild(wrapper);
+            makeInteractable(wrapper); selectObject(wrapper);
+        }
+
+        // 일반 이미지 생성
         el('sticker-input').addEventListener('change', e => {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = ev => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'sticker-wrapper';
-                wrapper.style.left = '200px'; wrapper.style.top = '200px';
-                wrapper.style.width = '120px'; wrapper.style.height = '120px';
-                wrapper.style.borderWidth = '0px'; wrapper.style.borderColor = '#ffffff'; wrapper.style.borderStyle = 'solid';
-                wrapper.dataset.angle = 0;
-                highestZIndex++; wrapper.style.zIndex = highestZIndex;
-
-                const content = document.createElement('div');
-                content.className = 'sticker-content';
-                const img = document.createElement('img');
-                img.src = ev.target.result;
+                const wrapper = createWrapperBase('sticker-wrapper', '150px', '150px');
+                const content = document.createElement('div'); content.className = 'sticker-content';
+                const img = document.createElement('img'); img.src = ev.target.result;
                 content.appendChild(img);
-                
-                const resizeH = document.createElement('div'); resizeH.className = 'resize-handle';
-                const rotateH = document.createElement('div'); rotateH.className = 'rotate-handle';
-                const delBtn = document.createElement('div'); delBtn.className = 'delete-btn'; delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-                delBtn.onclick = (e) => { e.stopPropagation(); wrapper.remove(); selectObject(null); };
-
                 wrapper.appendChild(content);
-                wrapper.appendChild(resizeH);
-                wrapper.appendChild(rotateH);
-                wrapper.appendChild(delBtn);
-                
-                el('capture-area').appendChild(wrapper);
-                makeInteractable(wrapper);
-                selectObject(wrapper);
+                appendControlsAndInit(wrapper);
                 el('sticker-input').value = '';
             };
             reader.readAsDataURL(file);
         });
 
-        // 텍스트 스티커 추가 발생기
+        // 텍스트 생성
         el('btn-add-text').addEventListener('click', () => {
             const text = el('text-sticker-input').value;
             const color = el('text-sticker-color').value;
             if(!text) return;
 
-            const wrapper = document.createElement('div');
-            wrapper.className = 'text-sticker';
-            wrapper.style.left = '200px'; wrapper.style.top = '200px';
-            wrapper.style.color = color;
-            wrapper.style.fontSize = '24px';
-            wrapper.dataset.angle = 0;
-            highestZIndex++; wrapper.style.zIndex = highestZIndex;
-
-            const textSpan = document.createElement('span');
-            textSpan.innerText = text;
-            
-            const rotateH = document.createElement('div'); rotateH.className = 'rotate-handle';
-            const delBtn = document.createElement('div'); delBtn.className = 'delete-btn'; delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-            delBtn.onclick = (e) => { e.stopPropagation(); wrapper.remove(); selectObject(null); };
-
+            const wrapper = createWrapperBase('text-sticker', 'auto', 'auto');
+            wrapper.style.color = color; wrapper.style.fontSize = '24px';
+            const textSpan = document.createElement('span'); textSpan.innerText = text;
             wrapper.appendChild(textSpan);
-            wrapper.appendChild(rotateH);
-            wrapper.appendChild(delBtn);
-            
-            el('capture-area').appendChild(wrapper);
-            makeInteractable(wrapper);
-            selectObject(wrapper);
+            appendControlsAndInit(wrapper);
             el('text-sticker-input').value = '';
         });
 
-        // 사이드 바 조작 패널 이벤트 연결
+        // 콜라주 생성
+        document.querySelectorAll('.btn-add-collage').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const cols = e.target.dataset.cols;
+                const wrapper = createWrapperBase('collage-wrapper', '200px', '200px');
+                const grid = document.createElement('div');
+                grid.className = `collage-grid grid-cols-${cols === '4' ? '2' : cols}`;
+                if(cols === '4') grid.style.gridTemplateRows = '1fr 1fr';
+                
+                for(let i=0; i<parseInt(cols); i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'collage-cell';
+                    cell.innerHTML = '<i class="fa-solid fa-plus pointer-events-none"></i>';
+                    cell.addEventListener('mousedown', (ev) => {
+                        ev.stopPropagation(); 
+                        currentCollageCell = cell;
+                        el('collage-upload').click();
+                    });
+                    grid.appendChild(cell);
+                }
+                wrapper.appendChild(grid);
+                appendControlsAndInit(wrapper);
+            });
+        });
+
+        // 콜라주 이미지 업로드 적용
+        el('collage-upload').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if(!file || !currentCollageCell) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                currentCollageCell.style.backgroundImage = `url('${ev.target.result}')`;
+                currentCollageCell.innerHTML = '';
+            }
+            reader.readAsDataURL(file);
+            el('collage-upload').value = '';
+        });
+
+        // 사이드 바 버튼들
         el('btn-deselect').onclick = () => selectObject(null);
-        
         el('btn-layer-top').onclick = () => { if (selectedObj) { highestZIndex++; selectedObj.style.zIndex = highestZIndex; } };
         el('btn-layer-bottom').onclick = () => { if (selectedObj) { selectedObj.style.zIndex = 1; } };
         el('btn-layer-up').onclick = () => { if (selectedObj) { let curZ = parseInt(selectedObj.style.zIndex) || 10; selectedObj.style.zIndex = curZ + 1; } };
         el('btn-layer-down').onclick = () => { if (selectedObj) { let curZ = parseInt(selectedObj.style.zIndex) || 10; selectedObj.style.zIndex = Math.max(1, curZ - 1); } };
         
-        el('sel-b-width').oninput = (e) => {
-            if (selectedObj && selectedObj.classList.contains('sticker-wrapper')) {
-                selectedObj.style.borderWidth = `${e.target.value}px`;
+        // ==========================================
+        // ⭐️ 자유로운 이미지 자르기 (Cropper.js) ⭐️
+        // ==========================================
+        let cropper = null;
+        el('btn-open-crop').addEventListener('click', () => {
+            if(!selectedObj || !selectedObj.classList.contains('sticker-wrapper')) return;
+            const img = selectedObj.querySelector('img');
+            el('crop-image').src = img.src;
+            el('crop-modal').classList.remove('hidden');
+
+            cropper = new Cropper(el('crop-image'), {
+                viewMode: 1, dragMode: 'crop', autoCropArea: 0.8,
+                restore: false, guides: true, center: true,
+                highlight: false, cropBoxMovable: true, cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+            });
+        });
+
+        el('btn-crop-cancel').addEventListener('click', () => {
+            el('crop-modal').classList.add('hidden');
+            if(cropper) { cropper.destroy(); cropper = null; }
+        });
+
+        el('btn-crop-apply').addEventListener('click', () => {
+            if(!cropper || !selectedObj) return;
+            const canvas = cropper.getCroppedCanvas();
+            const img = selectedObj.querySelector('img');
+            img.src = canvas.toDataURL('image/png');
+            
+            // 자른 이미지 비율에 맞춰 래퍼 갱신
+            let curWidth = parseInt(selectedObj.style.width) || 150;
+            selectedObj.style.height = `${curWidth * (canvas.height / canvas.width)}px`;
+
+            el('crop-modal').classList.add('hidden');
+            cropper.destroy(); cropper = null;
+        });
+
+        // --- 이미지 전용 제어 ---
+        const applyImgGlow = () => {
+            if (selectedObj && (selectedObj.classList.contains('sticker-wrapper') || selectedObj.classList.contains('collage-wrapper'))) {
+                let color = el('sel-img-glow-c').value;
+                let size = el('sel-img-glow-s').value;
+                selectedObj.style.filter = size > 0 ? `drop-shadow(0 0 ${size}px ${color})` : 'none';
             }
         };
-        el('sel-b-color').oninput = (e) => {
-            if (selectedObj && selectedObj.classList.contains('sticker-wrapper')) {
-                selectedObj.style.borderColor = e.target.value;
-            }
-        };
+        el('sel-img-glow-c').oninput = applyImgGlow; el('sel-img-glow-s').oninput = applyImgGlow;
+
+        el('sel-b-width').oninput = (e) => { if (selectedObj) selectedObj.style.borderWidth = `${e.target.value}px`; };
+        el('sel-b-color').oninput = (e) => { if (selectedObj) selectedObj.style.borderColor = e.target.value; };
         el('sel-b-radius').oninput = (e) => {
-            if (selectedObj && selectedObj.classList.contains('sticker-wrapper')) {
+            if (selectedObj) {
                 selectedObj.style.borderRadius = `${e.target.value}%`;
-                let inside = selectedObj.querySelector('.sticker-content');
-                if (inside) inside.style.borderRadius = `${e.target.value}%`;
-            }
-        };
-        el('sel-t-size').oninput = (e) => {
-            if (selectedObj && selectedObj.classList.contains('text-sticker')) {
-                selectedObj.style.fontSize = `${e.target.value}px`;
+                let content = selectedObj.querySelector('.sticker-content') || selectedObj.querySelector('.collage-grid');
+                if (content) content.style.borderRadius = `${e.target.value}%`;
             }
         };
 
+        // --- 텍스트 전용 제어 ---
+        el('sel-t-text').oninput = (e) => {
+            if (selectedObj && selectedObj.classList.contains('text-sticker')) { selectedObj.querySelector('span').innerText = e.target.value; }
+        };
+        el('sel-t-size').oninput = (e) => {
+            if (selectedObj && selectedObj.classList.contains('text-sticker')) { selectedObj.style.fontSize = `${e.target.value}px`; }
+        };
+        const applyTextEffects = () => {
+            if (selectedObj && selectedObj.classList.contains('text-sticker')) {
+                let span = selectedObj.querySelector('span');
+                let strW = el('sel-t-stroke-w').value; let strC = el('sel-t-stroke-c').value;
+                let gloS = el('sel-t-glow-s').value; let gloC = el('sel-t-glow-c').value;
+                span.style.webkitTextStroke = strW > 0 ? `${strW}px ${strC}` : '0px';
+                span.style.textShadow = gloS > 0 ? `0 0 ${gloS}px ${gloC}` : 'none';
+            }
+        };
+        el('sel-t-stroke-w').oninput = applyTextEffects; el('sel-t-stroke-c').oninput = applyTextEffects;
+        el('sel-t-glow-s').oninput = applyTextEffects; el('sel-t-glow-c').oninput = applyTextEffects;
+
+        // 전체 삭제
         el('btn-clear-stickers').onclick = () => {
-            document.querySelectorAll('.sticker-wrapper, .text-sticker').forEach(s => s.remove());
+            document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper').forEach(s => s.remove());
             selectObject(null);
         };
 
