@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     
@@ -60,7 +60,7 @@
             border-radius: 44px;
             box-shadow: -10px 20px 30px rgba(0, 0, 0, 0.2);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
         
         .phone-notch {
@@ -184,6 +184,8 @@
             transform-origin: center center;
             box-sizing: border-box; 
             user-select: none;
+            max-width: 100%;
+        min-width: 0;
         }
         
         .sticker-wrapper:hover, .text-sticker:hover, .collage-wrapper:hover,
@@ -194,7 +196,7 @@
         .sticker-content {
             width: 100%;
             height: 100%; 
-            overflow: hidden; 
+            overflow: visible;
             display: flex; 
             align-items: center; 
             justify-content: center; 
@@ -210,15 +212,16 @@
             pointer-events: none;
         }
         
-        .text-sticker span { 
-            display: inline-block;
-            outline: none; 
-            cursor: text;
-            transition: text-shadow 0.3s, background-color 0.3s, border-radius 0.3s;
-            word-break: keep-all; 
-            overflow-wrap: break-word; 
-            white-space: pre-wrap;
-        }
+.text-sticker span {
+    display: block;
+    max-width: 100%;
+    outline: none;
+    cursor: text;
+    transition: text-shadow 0.3s, background-color 0.3s, border-radius 0.3s;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
 
         .collage-container { 
             width: 100%;
@@ -1975,30 +1978,34 @@
             const savedScrollY = window.scrollY;
             window.scrollTo(0, 0);
 
-            document.fonts.ready.then(() => {
-                setTimeout(() => {
-                    html2canvas(target, { 
-                        scale: 2, 
-                        useCORS: true,
-                        allowTaint: true,
-                        scrollX: 0,
-                        scrollY: 0,
-                        windowWidth: document.documentElement.offsetWidth,
-                        windowHeight: document.documentElement.offsetHeight,
-                        letterRendering: 1
-                    }).then(canvas => {
-                        window.scrollTo(savedScrollX, savedScrollY); 
-                        const link = document.createElement('a');
-                        link.download = 'custom_profile.png';
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-                    }).catch(err => {
-                        console.error('저장 오류:', err);
-                        window.scrollTo(savedScrollX, savedScrollY);
-                    });
-                }, 100); 
+document.fonts.ready.then(() => {
+
+    document.querySelectorAll('.phone-frame').forEach(el => {
+        el.style.overflow = 'visible';
+    });
+
+    document.querySelectorAll('.sticker-content').forEach(el => {
+        el.style.overflow = 'visible';
+    });
+
+    setTimeout(() => {
+
+htmlToImage.toPng(target, { 
+            pixelRatio: 2, // 기존 scale: 2와 동일한 고화질 저장 옵션
+            useCORS: true  // 외부 이미지(프로필 등) 정상 로드 허용
+        }).then(dataUrl => {
+            window.scrollTo(savedScrollX, savedScrollY); 
+            
+            const link = document.createElement('a');
+            link.download = 'custom_profile.png';
+            link.href = dataUrl;
+            link.click();
+        }).catch(err => {
+            console.error('저장 오류:', err);
+            window.scrollTo(savedScrollX, savedScrollY);
+        });
+    }, 100);
             });
         });
     </script>
-</body>
 </html>
