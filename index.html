@@ -177,7 +177,7 @@
             font-weight: bold;
         }
 
-        .sticker-wrapper, .text-sticker, .collage-wrapper {
+        .sticker-wrapper, .text-sticker, .collage-wrapper, .memo-wrapper {
             position: absolute;
             border: 2px dashed transparent;
             cursor: move; 
@@ -185,12 +185,48 @@
             box-sizing: border-box; 
             user-select: none;
             max-width: 100%;
-        min-width: 0;
+            min-width: 0;
         }
         
-        .sticker-wrapper:hover, .text-sticker:hover, .collage-wrapper:hover,
-        .sticker-wrapper.selected, .text-sticker.selected, .collage-wrapper.selected {
+        .sticker-wrapper:hover, .text-sticker:hover, .collage-wrapper:hover, .memo-wrapper:hover,
+        .sticker-wrapper.selected, .text-sticker.selected, .collage-wrapper.selected, .memo-wrapper.selected {
             border-color: #ef4444;
+        }
+
+        .memo-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.15);
+            background-color: #fef08a; 
+            position: relative;
+            box-sizing: border-box;
+        }
+        .memo-content span {
+            display: block;
+            width: 100%;
+            height: 100%;
+            outline: none;
+            cursor: text;
+            word-break: break-word;
+            white-space: pre-wrap;
+            text-align: center;
+        }
+        .tape {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+            width: 60px;
+            height: 25px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            z-index: 5;
+            pointer-events: none;
         }
         
         .sticker-content {
@@ -205,23 +241,23 @@
         }
         
         .sticker-content img { 
-            width: 100%; 
+            width: 100%;
             height: 100%; 
             object-fit: cover !important; 
             object-position: center;
             pointer-events: none;
         }
         
-.text-sticker span {
-    display: block;
-    max-width: 100%;
-    outline: none;
-    cursor: text;
-    transition: text-shadow 0.3s, background-color 0.3s, border-radius 0.3s;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    white-space: pre-wrap;
-}
+        .text-sticker span {
+            display: block;
+            max-width: 100%;
+            outline: none;
+            cursor: text;
+            transition: text-shadow 0.3s, background-color 0.3s, border-radius 0.3s;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
 
         .collage-container { 
             width: 100%;
@@ -232,7 +268,7 @@
         }
         
         .collage-grid { 
-            flex-grow: 1; 
+            flex-grow: 1;
             display: grid;
             gap: 4px; 
             pointer-events: auto; 
@@ -242,7 +278,7 @@
         .collage-grid.vertical { grid-auto-flow: row; grid-auto-rows: 1fr; }
         
         .collage-cell { 
-            background: #cbd5e1; 
+            background: #cbd5e1;
             background-size: cover; 
             background-position: center; 
             cursor: pointer; 
@@ -276,92 +312,39 @@
         
         .bottom-label:empty:before { content: attr(data-placeholder); color: #94a3b8; }
 
-        .resize-handle { 
-            position: absolute;
-            right: -8px; bottom: -8px; 
-            width: 18px; height: 18px; 
-            background: #3b82f6; cursor: se-resize; opacity: 0; 
-            border-radius: 50%; border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; 
-        }
-        
-        .rotate-handle { 
-            position: absolute;
-            left: 50%; top: -26px; transform: translateX(-50%); 
-            width: 18px; height: 18px; background: #ef4444; 
-            cursor: crosshair; opacity: 0; border-radius: 50%;
-            border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10;
-        }
-        
-        .delete-btn { 
-            position: absolute; top: -12px; right: -12px; 
-            background: #1e293b; color: white;
-            width: 24px; height: 24px; opacity: 0; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 10px; cursor: pointer; border-radius: 50%; z-index: 10;
-            border: 2px solid white; 
-        }
+        .resize-handle { position: absolute; right: -8px; bottom: -8px; width: 18px; height: 18px; background: #3b82f6; cursor: se-resize; opacity: 0; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
+        .rotate-handle { position: absolute; left: 50%; top: -26px; transform: translateX(-50%); width: 18px; height: 18px; background: #ef4444; cursor: crosshair; opacity: 0; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
+        .delete-btn { position: absolute; top: -12px; right: -12px; background: #1e293b; color: white; width: 24px; height: 24px; opacity: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; border-radius: 50%; z-index: 10; border: 2px solid white; }
         
         .sticker-wrapper:hover .resize-handle, .sticker-wrapper:hover .rotate-handle, .sticker-wrapper:hover .delete-btn,
         .text-sticker:hover .rotate-handle, .text-sticker:hover .delete-btn,
         .collage-wrapper:hover .resize-handle, .collage-wrapper:hover .rotate-handle, .collage-wrapper:hover .delete-btn,
+        .memo-wrapper:hover .resize-handle, .memo-wrapper:hover .rotate-handle, .memo-wrapper:hover .delete-btn,
         .sticker-wrapper.selected .resize-handle, .sticker-wrapper.selected .rotate-handle, .sticker-wrapper.selected .delete-btn,
         .text-sticker.selected .rotate-handle, .text-sticker.selected .delete-btn,
-        .collage-wrapper.selected .resize-handle, .collage-wrapper.selected .rotate-handle, .collage-wrapper.selected .delete-btn { 
-            opacity: 1;
-        }
+        .collage-wrapper.selected .resize-handle, .collage-wrapper.selected .rotate-handle, .collage-wrapper.selected .delete-btn,
+        .memo-wrapper.selected .resize-handle, .memo-wrapper.selected .rotate-handle, .memo-wrapper.selected .delete-btn { opacity: 1; }
 
-        .control-panel { 
-            background: white;
-            border-right: 1px solid #e2e8f0; 
-            padding: 24px; 
-            height: 100vh; 
-            overflow-y: auto; 
-            width: 420px; 
-            flex-shrink: 0;
-        }
-        
+        .control-panel { background: white; border-right: 1px solid #e2e8f0; padding: 24px; height: 100vh; overflow-y: auto; width: 420px; flex-shrink: 0; }
         .control-panel::-webkit-scrollbar { width: 6px; }
         .control-panel::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
-        
         .input-group { margin-bottom: 16px; }
-        
-        label { 
-            display: block; font-weight: 700; margin-bottom: 4px; 
-            font-size: 0.8rem; color: #475569;
-        }
-        
-        input[type="text"], select { 
-            width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1;
-            border-radius: 6px; font-size: 0.85rem; outline: none; 
-        }
-        
+        label { display: block; font-weight: 700; margin-bottom: 4px; font-size: 0.8rem; color: #475569; }
+        input[type="text"], select { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.85rem; outline: none; }
         input:focus { border-color: #334155; }
-        
-        .editable-div { 
-            width: 100%;
-            padding: 8px 10px; border: 1px solid #cbd5e1; 
-            border-radius: 6px; min-height: 50px; font-size: 0.85rem; 
-            outline: none; background: #fff;
-        }
-        
+        .editable-div { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; min-height: 50px; font-size: 0.85rem; outline: none; background: #fff; }
         .editable-div b, .editable-div strong { color: var(--accent-color); font-weight: 900; }
 
         .chip-container { display: flex; flex-wrap: wrap; gap: 4px; }
-        
-        .chip { 
-            padding: 4px 12px; border-radius: 20px; background: #f1f5f9; cursor: pointer;
-            font-size: 0.75rem; font-weight: 500; transition: 0.2s; border: 1px solid transparent;
-            color: #475569;
-        }
-        
+        .chip { padding: 4px 12px; border-radius: 20px; background: #f1f5f9; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: 0.2s; border: 1px solid transparent; color: #475569; }
         .chip.active { background: #334155; color: white; border-color: #0f172a; }
 
-        #capture-area * {
-            word-break: keep-all;
-            overflow-wrap: break-word;
-            letter-spacing: normal;
-        }
+        #capture-area * { word-break: keep-all; overflow-wrap: break-word; letter-spacing: normal; }
+
+        /* 스냅 가이드라인 */
+        .snap-line { position: absolute; background-color: #ef4444; z-index: 9999; pointer-events: none; opacity: 0.6; }
+        .snap-line-v { width: 1px; top: 0; bottom: 0; }
+        .snap-line-h { height: 1px; left: 0; right: 0; }
     </style>
 </head>
 <body class="flex h-screen">
@@ -398,6 +381,19 @@
         </div>
     </div>
 
+    <button id="btn-layer-panel" class="fixed top-6 right-6 z-[8000] bg-white w-12 h-12 rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.1)] border border-slate-200 text-slate-800 hover:bg-slate-50 transition-colors flex items-center justify-center" title="레이어 관리">
+        <i class="fa-solid fa-bars text-xl"></i>
+    </button>
+
+    <div id="layer-panel" class="fixed top-0 right-0 h-screen w-72 bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] z-[8001] transform translate-x-full transition-transform duration-300 flex flex-col border-l border-slate-200">
+        <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+            <h3 class="font-black text-slate-800 text-sm"><i class="fa-solid fa-layer-group"></i> 레이어 패널</h3>
+            <button id="btn-close-layers" class="text-slate-400 hover:text-slate-800 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div id="layer-list" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50/50">
+            </div>
+    </div>
+
     <aside class="control-panel">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-black flex items-center gap-2 text-slate-800">
@@ -409,13 +405,20 @@
             </div>
         </div>
 
-        <div class="flex gap-2 mb-6">
+        <div class="flex gap-2 mb-2">
             <button id="btn-save-project" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs py-1.5 rounded font-bold transition-colors shadow-sm"><i class="fa-solid fa-download"></i> 설정 저장</button>
             <label class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs py-1.5 rounded font-bold transition-colors text-center cursor-pointer shadow-sm">
                 <i class="fa-solid fa-upload"></i> 설정 불러오기
                 <input type="file" id="input-load-project" accept=".json" class="hidden">
             </label>
         </div>
+
+        <div class="flex gap-1 mb-1">
+            <button class="btn-preset flex-1 bg-slate-800 text-white text-[10px] py-1.5 rounded font-bold hover:bg-black" data-preset="1"><i class="fa-solid fa-moon"></i> 프리셋 1</button>
+            <button class="btn-preset flex-1 bg-pink-100 text-pink-700 text-[10px] py-1.5 rounded font-bold hover:bg-pink-200" data-preset="2"><i class="fa-solid fa-heart"></i> 프리셋 2</button>
+            <button class="btn-preset flex-1 bg-yellow-400 text-yellow-900 text-[10px] py-1.5 rounded font-bold hover:bg-yellow-500" data-preset="3"><i class="fa-solid fa-star"></i> 프리셋 3</button>
+        </div>
+        <p class="text-[10px] text-red-500 font-bold mt-1 mb-6 text-center">현재 프리셋 1만 준비되어있습니다!!</p>
 
         <div class="bg-slate-50 p-4 rounded-xl mb-6 border border-slate-200">
             <h3 class="font-bold text-xs uppercase text-slate-500 mb-3 tracking-widest">베이스 디자인</h3>
@@ -460,12 +463,23 @@
             <hr class="my-4 border-slate-200">
 
             <label class="text-slate-800"><i class="fa-solid fa-layer-group"></i> 개체(이미지/텍스트/도형) 추가</label>
+            <p class="text-[10px] text-red-500 font-bold mb-2">※ 단축키: 마우스 빈공간 드래그(복수선택), Ctrl+C(복사), Ctrl+V(붙여넣기), Delete(삭제)</p>
             <input type="file" id="sticker-input" accept="image/*" class="text-xs w-full cursor-pointer mb-2 border p-1 bg-white rounded" title="이미지 추가하기">
-            
+           
             <div class="flex gap-2 mb-3">
                 <input type="color" id="text-sticker-color" value="#1e293b" class="w-8 h-8 border-none cursor-pointer shrink-0 rounded">
                 <input type="text" id="text-sticker-input" placeholder="텍스트 입력" class="flex-1 text-xs px-2 border border-slate-300 rounded outline-none">
                 <button id="btn-add-text" class="bg-slate-700 text-white text-xs font-bold px-3 rounded hover:bg-slate-800 transition">텍스트 추가</button>
+            </div>
+
+            <div class="mb-3">
+                <label class="text-[11px] text-slate-600"><i class="fa-solid fa-note-sticky"></i> 메모/포스트잇 추가</label>
+                <div class="flex gap-2 mt-1 items-center">
+                    <button id="btn-add-memo" class="flex-1 bg-yellow-100 border border-yellow-300 py-1 rounded text-xs font-bold text-yellow-800 hover:bg-yellow-200">메모 추가</button>
+                    <label class="text-[10px] flex items-center gap-1 cursor-pointer font-bold text-slate-600">
+                        <input type="checkbox" id="memo-tape-toggle" checked class="rounded border-slate-300"> 마스킹 테이프
+                    </label>
+                </div>
             </div>
 
             <div class="mb-3">
@@ -503,7 +517,7 @@
                     <button id="btn-layer-down" class="bg-white border border-slate-300 text-[10px] py-1 rounded font-bold hover:bg-slate-50">-1</button>
                     <button id="btn-layer-bottom" class="bg-white border border-slate-300 text-[10px] py-1 rounded font-bold hover:bg-slate-50">맨뒤</button>
                 </div>
-                
+            
                 <button id="btn-center-x" class="w-full bg-slate-200 border border-slate-300 text-[10px] py-1 rounded font-bold hover:bg-slate-300 mb-3 text-slate-700">
                     <i class="fa-solid fa-arrows-left-right-to-line"></i> 수평 가운데 정렬
                 </button>
@@ -580,7 +594,7 @@
                     </div>
                     
                     <hr class="border-slate-200 my-1">
-                    
+                   
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] w-12 text-slate-600 font-bold">외곽선 굵기</span>
                         <input type="range" id="sel-t-stroke-w" min="0" max="15" value="0" class="flex-1">
@@ -608,6 +622,11 @@
                     <div class="flex items-center gap-2">
                         <span class="text-[10px] w-12 text-slate-600 font-bold">배경둥글기</span>
                         <input type="range" id="sel-t-bg-r" min="0" max="50" value="0" class="flex-1">
+                    </div>
+
+                    <div id="memo-color-control" class="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200 hidden">
+                        <span class="text-[10px] w-12 text-slate-600 font-bold">메모 색상</span>
+                        <input type="color" id="sel-memo-bg-color" value="#fef08a" class="w-full h-6 border-none cursor-pointer rounded">
                     </div>
                 </div>
 
@@ -823,13 +842,15 @@
             </div>
         </div>
 
-        <button id="btn-save-img" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-black transition-all shadow-xl flex items-center justify-center gap-2 mb-10">
+        <button id="btn-save-img" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-black transition-all shadow-xl flex items-center justify-center gap-2 mb-2">
             <i class="fa-solid fa-image"></i> 깔끔하게 이미지로 저장하기
         </button>
+        <p class="text-[10px] text-slate-500 text-center font-bold mb-10">저장하는데 몇 초가 걸립니다!</p>
     </aside>
 
     <main class="preview-container">
         <div id="capture-area">
+            <div id="snap-guides"></div>
             <div style="position: absolute; bottom: 10px; left: 10px; z-index: 9999; font-size: 11px; color: rgba(30, 41, 59, 0.4); font-weight: bold; pointer-events: none;">@huchu0101</div>
             
             <div id="gradient-overlay" style="position: absolute; inset: 0; z-index: 0; pointer-events: none;"></div>
@@ -924,10 +945,101 @@
             });
         });
 
+        // 우측 레이어 패널 제어
+        const layerPanel = document.getElementById('layer-panel');
+        document.getElementById('btn-layer-panel').addEventListener('click', () => {
+            layerPanel.classList.toggle('translate-x-full');
+            if(!layerPanel.classList.contains('translate-x-full')) renderLayerList();
+        });
+        document.getElementById('btn-close-layers').addEventListener('click', () => {
+            layerPanel.classList.add('translate-x-full');
+        });
+
+        function renderLayerList() {
+            const listEl = document.getElementById('layer-list');
+            if(!listEl) return;
+            listEl.innerHTML = '';
+            
+            const createLayerItem = (obj, name, icon) => {
+                const item = document.createElement('div');
+                const isSelected = selectedObjs.includes(obj);
+                item.className = `p-2 rounded border cursor-pointer text-xs font-bold flex justify-between items-center transition-colors ${isSelected ? 'bg-indigo-50 border-indigo-300 text-indigo-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`;
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-2 pointer-events-none w-3/5 overflow-hidden">
+                        <i class="fa-solid ${icon} w-4 text-center shrink-0"></i>
+                        <span class="truncate">${name}</span>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button class="btn-layer-item-up p-1 text-slate-400 hover:text-indigo-600 rounded" title="위로 한칸"><i class="fa-solid fa-angle-up"></i></button>
+                        <button class="btn-layer-item-down p-1 text-slate-400 hover:text-indigo-600 rounded" title="아래로 한칸"><i class="fa-solid fa-angle-down"></i></button>
+                        ${(obj.id === 'phone-wrapper' || obj.id === 'phone-back-wrapper') ? '' : '<button class="btn-layer-item-del p-1 text-red-400 hover:text-red-600 rounded" title="삭제"><i class="fa-solid fa-trash-can"></i></button>'}
+                    </div>
+                `;
+                
+                item.onclick = (e) => {
+                    if(e.target.closest('button')) return; 
+                    if(obj.id !== 'phone-wrapper' && obj.id !== 'phone-back-wrapper') {
+                        selectObject(obj, e); 
+                    }
+                };
+                
+                item.querySelector('.btn-layer-item-up').onclick = (e) => { e.stopPropagation(); changeZIndex('up', obj); };
+                item.querySelector('.btn-layer-item-down').onclick = (e) => { e.stopPropagation(); changeZIndex('down', obj); };
+                
+                const delBtn = item.querySelector('.btn-layer-item-del');
+                if(delBtn) {
+                    delBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        obj.remove();
+                        if(selectedObjs.includes(obj)) selectObject(null);
+                        saveState();
+                    };
+                }
+                return item;
+            };
+
+            // 폰 레이어 섹션 분리
+            const phoneFront = document.getElementById('phone-wrapper');
+            const phoneBack = document.getElementById('phone-back-wrapper');
+            
+            const phoneHeader = document.createElement('div');
+            phoneHeader.className = 'text-[10px] text-slate-500 font-bold mb-1 mt-2 px-1';
+            phoneHeader.innerText = '📱 폰 레이어 (기기)';
+            listEl.appendChild(phoneHeader);
+            
+            if(phoneFront) listEl.appendChild(createLayerItem(phoneFront, '휴대폰 앞면', 'fa-mobile'));
+            if(phoneBack && phoneBack.style.display !== 'none') listEl.appendChild(createLayerItem(phoneBack, '휴대폰 뒷면', 'fa-mobile-screen'));
+
+            // 오브젝트 레이어 섹션 분리
+            const objHeader = document.createElement('div');
+            objHeader.className = 'text-[10px] text-slate-500 font-bold mb-1 mt-3 px-1 border-t border-slate-200 pt-2';
+            objHeader.innerText = '🎨 오브젝트 레이어';
+            listEl.appendChild(objHeader);
+
+            const objs = Array.from(document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper, .memo-wrapper'));
+            objs.sort((a, b) => (parseInt(b.style.zIndex)||0) - (parseInt(a.style.zIndex)||0));
+            
+            objs.forEach((obj) => {
+                let name = '개체';
+                let icon = 'fa-shapes';
+                if(obj.classList.contains('sticker-wrapper')) { name = '이미지/도형'; icon = 'fa-image'; }
+                if(obj.classList.contains('text-sticker')) { name = '텍스트'; icon = 'fa-font'; }
+                if(obj.classList.contains('collage-wrapper')) { name = '콜라주 프레임'; icon = 'fa-border-all'; }
+                if(obj.classList.contains('memo-wrapper')) { name = '메모'; icon = 'fa-note-sticky'; }
+                
+                if(obj.classList.contains('text-sticker') || obj.classList.contains('memo-wrapper')) {
+                    const span = obj.querySelector('span');
+                    if(span && span.innerText) name += ` ("${span.innerText.substring(0,5)}...")`;
+                }
+                
+                listEl.appendChild(createLayerItem(obj, name, icon));
+            });
+        }
+
         // Undo/Redo 로직
         let undoStack = [];
         let redoStack = [];
-
         function saveState() {
             const currentSelections = [...selectedObjs];
             currentSelections.forEach(obj => obj.classList.remove('selected'));
@@ -938,6 +1050,10 @@
             redoStack = [];
             
             currentSelections.forEach(obj => obj.classList.add('selected'));
+
+            if(!layerPanel.classList.contains('translate-x-full')) {
+                renderLayerList();
+            }
         }
 
         function restoreState(htmlState) {
@@ -947,6 +1063,7 @@
             reattachEvents(); 
             makePhoneDraggable('phone-wrapper', frontState, 'ui-phone-x', 'ui-phone-y');
             makePhoneDraggable('phone-back-wrapper', backState, 'ui-back-x', 'ui-back-y');
+            if(!layerPanel.classList.contains('translate-x-full')) renderLayerList();
         }
 
         document.getElementById('btn-undo').addEventListener('click', () => {
@@ -964,12 +1081,94 @@
                 restoreState(nextState);
             }
         });
-        
+
+        // 복사/붙여넣기 및 단축키(Delete 등) 로직
+        let copiedObjs = [];
         document.addEventListener('keydown', function(e) {
+            // 입력창 등에서 타이핑 중일 땐 단축키 막기
+            if (e.target.isContentEditable || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+            // Undo/Redo
             if (e.ctrlKey && e.key.toLowerCase() === 'z') { e.preventDefault(); document.getElementById('btn-undo').click(); }
             if (e.ctrlKey && e.key.toLowerCase() === 'y') { e.preventDefault(); document.getElementById('btn-redo').click(); }
+
+            // 삭제 기능 (Delete or Backspace)
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (selectedObjs.length > 0) {
+                    e.preventDefault();
+                    selectedObjs.forEach(obj => obj.remove());
+                    selectObject(null);
+                    saveState();
+                }
+            }
+
+            // 복사 기능 (Ctrl+C)
+            if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+                if (selectedObjs.length > 0) {
+                    e.preventDefault();
+                    copiedObjs = selectedObjs.map(obj => {
+                        const clone = obj.cloneNode(true);
+                        clone.classList.remove('selected');
+                        return clone;
+                    });
+                }
+            }
+
+            // 붙여넣기 기능 (Ctrl+V)
+            if (e.ctrlKey && e.key.toLowerCase() === 'v') {
+                if (copiedObjs.length > 0) {
+                    e.preventDefault();
+                    selectObject(null); // 기존 선택 해제
+                    const pastedObjs = [];
+                    
+                    copiedObjs.forEach(copiedObj => {
+                        const newObj = copiedObj.cloneNode(true);
+                        
+                        // 위치 살짝 이동시켜서 겹치지 않게
+                        let left = parseFloat(newObj.style.left) || 0;
+                        let top = parseFloat(newObj.style.top) || 0;
+                        newObj.style.left = `${left + 20}px`;
+                        newObj.style.top = `${top + 20}px`;
+                        
+                        highestZIndex++;
+                        newObj.style.zIndex = highestZIndex;
+                        
+                        document.getElementById('capture-area').appendChild(newObj);
+                        
+                        // 삭제 버튼 다시 연결
+                        const delBtn = newObj.querySelector('.delete-btn');
+                        if(delBtn) delBtn.onclick = (ev) => { ev.stopPropagation(); newObj.remove(); selectObject(null); saveState(); };
+                        
+                        // 콜라주 프레임이면 클릭이벤트 재연결
+                        if(newObj.classList.contains('collage-wrapper')) {
+                            newObj.querySelectorAll('.collage-cell').forEach(cell => {
+                                cell.addEventListener('mousedown', (ev) => {
+                                    ev.stopPropagation(); 
+                                    currentCollageCell = cell;
+                                    document.getElementById('collage-upload').click();
+                                });
+                            });
+                        }
+                        
+                        makeInteractable(newObj);
+                        pastedObjs.push(newObj);
+                    });
+                    
+                    // 새로 붙여넣은 개체들 선택
+                    pastedObjs.forEach((o, i) => selectObject(o, {shiftKey: i > 0}));
+                    
+                    // 연속 붙여넣기를 위해 복사본 갱신 (계속 +20px씩 이동되게)
+                    copiedObjs = pastedObjs.map(obj => {
+                        const clone = obj.cloneNode(true);
+                        clone.classList.remove('selected');
+                        return clone;
+                    });
+                    
+                    saveState();
+                }
+            }
         });
-        
+
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(saveState, 500); 
         });
@@ -987,17 +1186,75 @@
                 captureBgImage: document.getElementById('capture-area').style.backgroundImage,
                 customFont: document.getElementById('custom-user-font') ? document.getElementById('custom-user-font').innerHTML : ''
             };
-            
             document.querySelectorAll('.control-panel input, .control-panel select').forEach(el => {
                 if (el.id && el.type !== 'file') settings.inputs[el.id] = el.type === 'checkbox' ? el.checked : el.value;
             });
-            
             document.querySelectorAll('.control-panel .editable-div').forEach(el => {
                 if (el.id) settings.editable[el.id] = el.innerHTML;
             });
-            
             currentSelections.forEach(obj => obj.classList.add('selected'));
             return JSON.stringify(settings);
+        };
+
+        const applyProjectData = (data) => {
+            if (data.state) Object.assign(state, data.state);
+            if (data.frontState) Object.assign(frontState, data.frontState);
+            if (data.backState) Object.assign(backState, data.backState);
+            
+            for (const [id, val] of Object.entries(data.inputs || {})) {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (el.type === 'checkbox') el.checked = val;
+                    else el.value = val;
+                }
+            }
+            
+            for (const [id, val] of Object.entries(data.editable || {})) {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = val;
+            }
+            
+            if (data.captureHtml) document.getElementById('capture-area').innerHTML = data.captureHtml;
+            if (data.captureBgColor) document.getElementById('capture-area').style.backgroundColor = data.captureBgColor;
+            if (data.captureBgImage) document.getElementById('capture-area').style.backgroundImage = data.captureBgImage;
+            
+            if (data.customFont) {
+                let styleEl = document.getElementById('custom-user-font');
+                if (!styleEl) { 
+                    styleEl = document.createElement('style');
+                    styleEl.id = 'custom-user-font'; 
+                    document.head.appendChild(styleEl); 
+                }
+                styleEl.innerHTML = data.customFont;
+            }
+
+            updateImg();
+            renderTags();
+            updateGradient();
+            document.documentElement.style.setProperty('--accent-color', state.accent);
+            document.getElementById('p-img-frame').style.borderColor = state.accent;
+            
+            document.getElementById('p-nickname').innerText = document.getElementById('input-nickname').value || '닉네임';
+            document.getElementById('p-id').innerText = document.getElementById('input-id').value || '@id';
+            document.getElementById('p-platform').innerText = document.getElementById('input-platform').value || 'Twitter / X';
+            document.getElementById('p-farewell').innerText = document.getElementById('input-farewell').value;
+            document.getElementById('p-other').innerText = document.getElementById('input-other').value;
+            document.getElementById('p-info').innerHTML = document.getElementById('input-info').innerHTML;
+            document.getElementById('p-ng').innerHTML = document.getElementById('input-ng').innerHTML;
+            
+            document.getElementById('phone-back-frame').style.backgroundColor = document.getElementById('phone-back-color').value;
+            document.getElementById('phone-back-frame').style.borderColor = document.getElementById('phone-camera-color').value;
+            document.getElementById('camera-module').style.backgroundColor = document.getElementById('phone-camera-color').value;
+            document.getElementById('camera-module').style.borderColor = document.getElementById('phone-camera-color').value;
+            document.getElementById('camera-module').style.display = document.getElementById('toggle-camera-module').checked ? 'flex' : 'none';
+            document.getElementById('phone-back-wrapper').style.display = document.getElementById('toggle-phone-back').checked ? 'block' : 'none';
+
+            reattachEvents();
+            makePhoneDraggable('phone-wrapper', frontState, 'ui-phone-x', 'ui-phone-y');
+            makePhoneDraggable('phone-back-wrapper', backState, 'ui-back-x', 'ui-back-y');
+            highestZIndex = Math.max(10, ...Array.from(document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper, .memo-wrapper, #phone-wrapper, #phone-back-wrapper')).map(el => parseInt(el.style.zIndex) || 10));
+            selectObject(null);
+            saveState();
         };
 
         document.getElementById('btn-save-project').addEventListener('click', () => {
@@ -1009,7 +1266,7 @@
             a.click();
             URL.revokeObjectURL(url);
         });
-        
+
         document.getElementById('input-load-project').addEventListener('change', e => {
             const file = e.target.files[0];
             if (!file) return;
@@ -1017,65 +1274,7 @@
             reader.onload = ev => {
                 try {
                     const data = JSON.parse(ev.target.result);
-                    if (data.state) Object.assign(state, data.state);
-                    if (data.frontState) Object.assign(frontState, data.frontState);
-                    if (data.backState) Object.assign(backState, data.backState);
-                    
-                    for (const [id, val] of Object.entries(data.inputs || {})) {
-                        const el = document.getElementById(id);
-                        if (el) {
-                            if (el.type === 'checkbox') el.checked = val;
-                            else el.value = val;
-                        }
-                    }
-                    
-                    for (const [id, val] of Object.entries(data.editable || {})) {
-                        const el = document.getElementById(id);
-                        if (el) el.innerHTML = val;
-                    }
-                    
-                    if (data.captureHtml) document.getElementById('capture-area').innerHTML = data.captureHtml;
-                    if (data.captureBgColor) document.getElementById('capture-area').style.backgroundColor = data.captureBgColor;
-                    if (data.captureBgImage) document.getElementById('capture-area').style.backgroundImage = data.captureBgImage;
-                    
-                    if (data.customFont) {
-                        let styleEl = document.getElementById('custom-user-font');
-                        if (!styleEl) { 
-                            styleEl = document.createElement('style');
-                            styleEl.id = 'custom-user-font'; 
-                            document.head.appendChild(styleEl); 
-                        }
-                        styleEl.innerHTML = data.customFont;
-                    }
-
-                    updateImg();
-                    renderTags();
-                    updateGradient();
-                    document.documentElement.style.setProperty('--accent-color', state.accent);
-                    document.getElementById('p-img-frame').style.borderColor = state.accent;
-                    
-                    document.getElementById('p-nickname').innerText = document.getElementById('input-nickname').value || '닉네임';
-                    document.getElementById('p-id').innerText = document.getElementById('input-id').value || '@id';
-                    document.getElementById('p-platform').innerText = document.getElementById('input-platform').value || 'Twitter / X';
-                    document.getElementById('p-farewell').innerText = document.getElementById('input-farewell').value;
-                    document.getElementById('p-other').innerText = document.getElementById('input-other').value;
-                    document.getElementById('p-info').innerHTML = document.getElementById('input-info').innerHTML;
-                    document.getElementById('p-ng').innerHTML = document.getElementById('input-ng').innerHTML;
-                    
-                    document.getElementById('phone-back-frame').style.backgroundColor = document.getElementById('phone-back-color').value;
-                    document.getElementById('phone-back-frame').style.borderColor = document.getElementById('phone-camera-color').value;
-                    document.getElementById('camera-module').style.backgroundColor = document.getElementById('phone-camera-color').value;
-                    document.getElementById('camera-module').style.borderColor = document.getElementById('phone-camera-color').value;
-                    document.getElementById('camera-module').style.display = document.getElementById('toggle-camera-module').checked ? 'flex' : 'none';
-                    document.getElementById('phone-back-wrapper').style.display = document.getElementById('toggle-phone-back').checked ? 'block' : 'none';
-
-                    reattachEvents();
-                    makePhoneDraggable('phone-wrapper', frontState, 'ui-phone-x', 'ui-phone-y');
-                    makePhoneDraggable('phone-back-wrapper', backState, 'ui-back-x', 'ui-back-y');
-                    
-                    highestZIndex = Math.max(10, ...Array.from(document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper')).map(el => parseInt(el.style.zIndex) || 10));
-                    selectObject(null);
-                    saveState();
+                    applyProjectData(data);
                     alert('설정을 성공적으로 불러왔습니다.');
                 } catch (err) {
                     console.error(err);
@@ -1084,6 +1283,38 @@
                 e.target.value = '';
             };
             reader.readAsText(file);
+        });
+
+        // 프리셋 데이터 (프리셋 1은 전달해주신 JSON으로 교체완료)
+        const presetsData = {
+            1: {"state":{"accent":"#334155","tags1":[],"tags2":[],"imgScale":1,"imgX":0,"imgY":0,"imgRotate":0},"frontState":{"x":125,"y":97,"scale":1.35,"rotate":-13},"backState":{"x":750,"y":100,"rotate":15},"inputs":{"input-bg":"#ffffff","input-accent":"#334155","grad-c1":"#000000","grad-a1":"0","grad-c2":"#000000","grad-a2":"0","grad-angle":"180","text-sticker-color":"#1e293b","text-sticker-input":"","memo-tape-toggle":true,"sel-shape-color":"#cbd5e1","sel-img-glow-c":"#ffffff","sel-img-glow-s":"0","sel-b-width":"0","sel-b-color":"#ffffff","sel-b-radius":"0","sel-img-text-toggle":true,"sel-img-text-size":"12","sel-img-text-color":"#1e293b","sel-t-text":"메모를 입력하세요(크기 조절 가능)","sel-t-size":"16","sel-t-color":"#1e293b","sel-t-bold":false,"sel-t-stroke-w":"0","sel-t-stroke-c":"#ffffff","sel-t-glow-s":"0","sel-t-glow-c":"#ffffff","sel-t-bg-toggle":false,"sel-t-bg-c":"#ffffff","sel-t-bg-r":"0","sel-memo-bg-color":"#cbd5e1","ui-phone-scale":"1.35","ui-phone-x":"125","ui-phone-y":"97","ui-phone-rotate":"-13","toggle-phone-back":false,"phone-back-color":"#334155","phone-camera-color":"#0f172a","toggle-camera-module":true,"ui-back-x":"750","ui-back-y":"100","ui-back-rotate":"15","ui-phone-text-scale":"1","ui-phone-lh":"1.4","img-scale":"1","img-x":"0","img-y":"0","img-rotate":"0","input-nickname":"","input-id":"","input-platform":"","input-etc":"","input-farewell":"블언블","input-other":"OK"},"editable":{"input-info":"","input-ng":""},"captureHtml":"\n            <div id=\"snap-guides\"></div>\n            <div style=\"position: absolute; bottom: 10px; left: 10px; z-index: 9999; font-size: 11px; color: rgba(30, 41, 59, 0.4); font-weight: bold; pointer-events: none;\">@huchu0101</div>\n            \n            <div id=\"gradient-overlay\" style=\"position: absolute; inset: 0px; z-index: 0; pointer-events: none; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));\"></div>\n\n            <div id=\"phone-back-wrapper\" style=\"position: absolute; left: 750px; top: 100px; transform: rotate(15deg) scale(1.35); transform-origin: center center; z-index: 30; display: none;\">\n                <div id=\"phone-back-frame\" class=\"phone-frame phone-back\" style=\"background-color: rgb(51, 65, 85); border-color: rgb(15, 23, 42);\">\n                    <div id=\"camera-module\" class=\"camera-module\" style=\"background-color: rgb(15, 23, 42); border-color: rgb(15, 23, 42); display: flex;\">\n                        <div class=\"lens lens-1\"></div>\n                        <div class=\"lens lens-2\"></div>\n                        <div class=\"lens lens-3\"></div>\n                        <div class=\"flash\"></div>\n                        <div class=\"lidar\"></div>\n                    </div>\n                </div>\n            </div>\n\n            <div id=\"phone-wrapper\" style=\"position: absolute; left: 125px; top: 97px; transform: rotate(-13deg) scale(1.35); transform-origin: center center; z-index: 31; cursor: move;\">\n                <div class=\"phone-frame\">\n                    <div class=\"phone-notch\"></div>\n                    <div class=\"preview-content\" id=\"phone-inner\">\n                        \n                        <div class=\"flex items-center gap-4 mb-6 border-b border-slate-100 pb-5\">\n                            <div class=\"profile-img-container shrink-0\" id=\"p-img-frame\" style=\"border-color: rgb(51, 65, 85);\">\n                                <img src=\"https://placehold.co/200x200/e2e8f0/94a3b8?text=Photo\" id=\"p-img\" alt=\"Profile\" style=\"transform: translate(-50%, -50%) translate(0px, 0px) scale(1) rotate(0deg); left: 50%; top: 50%;\">\n                            </div>\n                            <div>\n                                <h3 id=\"p-nickname\" class=\"t-xl font-black\">닉네임</h3>\n                                <p id=\"p-id\" class=\"t-10 text-slate-500 font-medium mt-0.5\">@id</p>\n                            </div>\n                        </div>\n\n                        <div class=\"mb-4\">\n                            <p class=\"t-9 font-bold text-slate-400 uppercase tracking-widest mb-1\">Platform</p>\n                            <p id=\"p-platform\" class=\"t-xs font-bold text-slate-800\">Twitter / X</p>\n                        </div>\n\n                        <div class=\"mb-4\">\n                            <p class=\"t-9 font-bold text-slate-400 uppercase tracking-widest mb-1\">성향</p>\n                            <div id=\"p-tags1\" class=\"flex flex-wrap gap-1\"></div>\n                        </div>\n                        \n                        <div class=\"mb-5\">\n                            <p class=\"t-9 font-bold text-slate-400 uppercase tracking-widest mb-1\">계정성향</p>\n                            <div id=\"p-tags2\" class=\"flex flex-wrap gap-1\"></div>\n                        </div>\n\n                        <div class=\"grid grid-cols-2 gap-2 mb-5\">\n                            <div class=\"bg-slate-50 p-2 rounded-lg border border-slate-200\">\n                                <p class=\"t-9 text-slate-500 font-bold mb-1\">이별</p>\n                                <p id=\"p-farewell\" class=\"t-xs font-black text-slate-800\">블언블</p>\n                            </div>\n                            <div class=\"bg-slate-50 p-2 rounded-lg border border-slate-200\">\n                                <p class=\"t-9 text-slate-500 font-bold mb-1\">타장르</p>\n                                <p id=\"p-other\" class=\"t-xs font-black text-slate-800\">OK</p>\n                            </div>\n                        </div>\n\n                        <div class=\"mb-4\">\n                            <p class=\"t-9 font-bold text-slate-500 uppercase mb-1\">INFO</p>\n                            <div id=\"p-info\" class=\"t-xs text-slate-700 break-all min-h-[20px]\"></div>\n                        </div>\n                        <div class=\"mb-2\">\n                            <p class=\"t-9 font-bold text-slate-500 uppercase mb-1\">NG</p>\n                            <div id=\"p-ng\" class=\"t-xs text-slate-700 break-all min-h-[20px]\"></div>\n                        </div>\n                        \n                    </div>\n                </div>\n            </div>\n\n        <div class=\"collage-wrapper\" data-angle=\"7.195289142176634\" style=\"left: 432px; top: 17px; width: 220px; height: 260px; z-index: 14; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(7.19529deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"collage-wrapper\" data-angle=\"-13.217788006237868\" style=\"left: 663px; top: 12px; width: 220px; height: 260px; z-index: 15; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(-13.2178deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"memo-wrapper\" data-angle=\"-6.267481953248847\" style=\"left: 867px; top: 37px; width: 384px; height: 143px; z-index: 21; transform: rotate(-6.26748deg);\"><div class=\"tape\"></div><div class=\"memo-content\" style=\"background-color: rgb(203, 213, 225);\"><span contenteditable=\"true\" spellcheck=\"false\" style=\"font-size: 16px;\">메모를 입력하세요<br>(크기 조절 가능)</span></div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"collage-wrapper\" data-angle=\"-13.217788006237868\" style=\"left: 683px; top: 444px; width: 220px; height: 260px; z-index: 34; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(-13.2178deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"collage-wrapper\" data-angle=\"7.195289142176634\" style=\"left: 452px; top: 449px; width: 220px; height: 260px; z-index: 33; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(7.19529deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"memo-wrapper\" data-angle=\"-6.267481953248847\" style=\"left: 900px; top: 505px; width: 384px; height: 143px; z-index: 26; transform: rotate(-6.26748deg);\"><div class=\"tape\"></div><div class=\"memo-content\" style=\"background-color: rgb(203, 213, 225);\"><span contenteditable=\"true\" spellcheck=\"false\" style=\"font-size: 16px;\">메모를 입력하세요<br>(크기 조절 가능)</span></div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"collage-wrapper\" data-angle=\"-13.217788006237868\" style=\"left: 1070px; top: 208px; width: 220px; height: 260px; z-index: 27; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(-13.2178deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"collage-wrapper\" data-angle=\"7.195289142176634\" style=\"left: 839px; top: 213px; width: 220px; height: 260px; z-index: 28; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(7.19529deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"memo-wrapper\" data-angle=\"3.691385986451266\" style=\"left: 439px; top: 283px; width: 384px; height: 143px; z-index: 32; transform: rotate(3.69139deg);\"><div class=\"tape\"></div><div class=\"memo-content\" style=\"background-color: rgb(203, 213, 225);\"><span contenteditable=\"true\" spellcheck=\"false\" style=\"font-size: 16px;\">메모를 입력하세요<br>(크기 조절 가능)</span></div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div>","captureBgColor":"","captureBgImage":"","customFont":""},
+            2: { // 러블리 파스텔
+                state: { accent: '#db2777' },
+                inputs: { 'input-bg': '#fdf2f8', 'input-accent': '#db2777', 'toggle-phone-back': true, 'phone-back-color': '#fbcfe8', 'phone-camera-color': '#f472b6', 'grad-a1': 0.4, 'grad-c1': '#bfdbfe', 'grad-a2': 0, 'ui-phone-x': 150, 'ui-phone-y': 80, 'ui-phone-rotate': -5, 'ui-back-x': 700, 'ui-back-y': 150, 'ui-back-rotate': 25 }
+            },
+            3: { // 레트로 팝
+                state: { accent: '#eab308' },
+                inputs: { 'input-bg': '#3b82f6', 'input-accent': '#eab308', 'toggle-phone-back': true, 'phone-back-color': '#ef4444', 'phone-camera-color': '#fde047', 'grad-a1': 0, 'grad-c1': '#000000', 'grad-a2': 0, 'ui-phone-x': 200, 'ui-phone-y': 100, 'ui-phone-rotate': 10, 'ui-back-x': 600, 'ui-back-y': 50, 'ui-back-rotate': -20 }
+            }
+        };
+
+        document.querySelectorAll('.btn-preset').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const pNum = e.currentTarget.dataset.preset;
+                const pData = presetsData[pNum];
+                if(!pData) return;
+                
+                if (pNum === '1') {
+                    // 프리셋 1은 캔버스 전체를 덮어씌웁니다.
+                    applyProjectData(pData);
+                } else {
+                    // 나머지 프리셋은 설정값만 덮어쓰기
+                    const curSettings = JSON.parse(getSettings());
+                    Object.assign(curSettings.state, pData.state);
+                    Object.assign(curSettings.inputs, pData.inputs);
+                    applyProjectData(curSettings);
+                }
+            });
         });
 
         function rgb2hex(rgb) {
@@ -1097,7 +1328,7 @@
 
         // 프로필 이미지 제어 
         const state = { accent: '#334155', tags1: [], tags2: [], imgScale: 1, imgX: 0, imgY: 0, imgRotate: 0 };
-        let highestZIndex = 10;
+        let highestZIndex = 50; // 시작 시 넉넉하게 줌
         let selectedObjs = []; 
         let currentCollageCell = null;
         
@@ -1110,14 +1341,15 @@
                 reader.onload = ev => {
                     el('p-img').src = ev.target.result;
                     state.imgScale = 1; state.imgX = 0; state.imgY = 0; state.imgRotate = 0;
-                    el('img-scale').value = 1; el('img-x').value = 0; el('img-y').value = 0; el('img-rotate').value = 0;
+                    el('img-scale').value = 1; el('img-x').value = 0;
+                    el('img-y').value = 0; el('img-rotate').value = 0;
                     updateImg();
                     saveState();
                 };
                 reader.readAsDataURL(file);
             }
         });
-        
+
         function updateImg() {
             const img = el('p-img');
             img.style.transform = `translate(-50%, -50%) translate(${state.imgX}px, ${state.imgY}px) scale(${state.imgScale}) rotate(${state.imgRotate}deg)`;
@@ -1130,7 +1362,6 @@
         el('img-rotate').addEventListener('input', e => { state.imgRotate = parseFloat(e.target.value); updateImg(); });
         ['img-scale', 'img-x', 'img-y', 'img-rotate'].forEach(id => el(id).addEventListener('change', saveState));
 
-        // 텍스트 배율 및 그라데이션
         el('ui-phone-text-scale').addEventListener('input', e => document.documentElement.style.setProperty('--phone-text-scale', e.target.value));
         el('ui-phone-text-scale').addEventListener('change', saveState);
         el('ui-phone-lh').addEventListener('input', e => document.documentElement.style.setProperty('--phone-lh', e.target.value));
@@ -1153,7 +1384,7 @@
             el(id).addEventListener('input', updateGradient);
             el(id).addEventListener('change', saveState);
         });
-        
+
         const bind = (input, preview, isHtml = false) => {
             el(input).addEventListener('input', e => {
                 if(isHtml) el(preview).innerHTML = e.target.innerHTML;
@@ -1167,7 +1398,7 @@
         bind('input-platform', 'p-platform');
         bind('input-info', 'p-info', true);
         bind('input-ng', 'p-ng', true);
-        
+
         el('input-bg').addEventListener('input', e => {
             el('capture-area').style.backgroundImage = 'none';
             el('capture-area').style.backgroundColor = e.target.value;
@@ -1188,7 +1419,7 @@
             el('bg-img-input').value = '';
             saveState();
         });
-        
+
         el('bg-img-input').addEventListener('change', e => {
             const file = e.target.files[0];
             if(!file) return;
@@ -1199,7 +1430,7 @@
             };
             reader.readAsDataURL(file);
         });
-        
+
         el('font-input').addEventListener('change', e => {
             const file = e.target.files[0];
             if (!file) return;
@@ -1212,11 +1443,10 @@
             };
             reader.readAsDataURL(file);
         });
-        
-        // 폰 기기 마우스 & 슬라이더 조작
+
         const frontState = { x: 120, y: 60, scale: 1, rotate: -13 };
         const backState = { x: 750, y: 100, rotate: 15 };
-        
+
         function updatePhoneFront() {
             el('phone-wrapper').style.left = `${frontState.x}px`; el('phone-wrapper').style.top = `${frontState.y}px`;
             el('phone-wrapper').style.transform = `rotate(${frontState.rotate}deg) scale(${frontState.scale})`;
@@ -1232,18 +1462,17 @@
         el('ui-phone-y').addEventListener('input', e => { frontState.y = parseFloat(e.target.value); updatePhoneFront(); });
         el('ui-phone-rotate').addEventListener('input', e => { frontState.rotate = parseFloat(e.target.value); updatePhoneFront(); });
         ['ui-phone-scale', 'ui-phone-x', 'ui-phone-y', 'ui-phone-rotate'].forEach(id => el(id).addEventListener('change', saveState));
-        
+
         el('ui-back-x').addEventListener('input', e => { backState.x = parseFloat(e.target.value); updatePhoneBack(); });
         el('ui-back-y').addEventListener('input', e => { backState.y = parseFloat(e.target.value); updatePhoneBack(); });
         el('ui-back-rotate').addEventListener('input', e => { backState.rotate = parseFloat(e.target.value); updatePhoneBack(); });
         ['ui-back-x', 'ui-back-y', 'ui-back-rotate'].forEach(id => el(id).addEventListener('change', saveState));
-        
-        // 뒷면 토글 및 스타일 연동 
+
         el('toggle-phone-back').addEventListener('change', e => {
             el('phone-back-wrapper').style.display = e.target.checked ? 'block' : 'none';
             saveState();
         });
-        
+
         el('phone-back-color').addEventListener('input', e => {
             el('phone-back-frame').style.backgroundColor = e.target.value;
         });
@@ -1261,7 +1490,7 @@
             el('camera-module').style.display = e.target.checked ? 'flex' : 'none';
             saveState();
         });
-        
+
         el('phone-back-bg-input').addEventListener('change', e => {
             const file = e.target.files[0];
             if(!file) return;
@@ -1272,8 +1501,7 @@
             };
             reader.readAsDataURL(file);
         });
-        
-        // 폰 드래그 로직
+
         function makePhoneDraggable(wrapperId, stateObj, sliderXId, sliderYId) {
             const wrapper = el(wrapperId);
             let isDragging = false, startX, startY, initX, initY;
@@ -1305,7 +1533,6 @@
         makePhoneDraggable('phone-wrapper', frontState, 'ui-phone-x', 'ui-phone-y');
         makePhoneDraggable('phone-back-wrapper', backState, 'ui-back-x', 'ui-back-y');
         
-        // 성향 칩셋 처리
         const setupChips = (container, list) => {
             document.querySelectorAll(`#${container} .chip`).forEach(chip => {
                 chip.onclick = () => {
@@ -1347,7 +1574,7 @@
 
         // 개체 선택 시스템
         function selectObject(obj, event) {
-            if (event && event.ctrlKey) {
+            if (event && event.shiftKey) {
                 if (selectedObjs.includes(obj)) {
                     obj.classList.remove('selected');
                     selectedObjs = selectedObjs.filter(o => o !== obj);
@@ -1366,6 +1593,10 @@
                 }
             }
 
+            if(!layerPanel.classList.contains('translate-x-full')) {
+                renderLayerList();
+            }
+
             if (selectedObjs.length === 0) {
                 el('selected-controls').style.display = 'none';
                 return;
@@ -1373,13 +1604,12 @@
 
             el('selected-controls').style.display = 'block';
             const primaryObj = selectedObjs[0];
-            
+
             if (primaryObj.classList.contains('sticker-wrapper') || primaryObj.classList.contains('collage-wrapper')) {
                 el('selected-img-controls').style.display = 'block';
                 el('selected-text-controls').style.display = 'none';
                 el('selected-collage-controls').style.display = primaryObj.classList.contains('collage-wrapper') ? 'block' : 'none';
                 
-                // 도형 전용 컨트롤 활성화
                 if(primaryObj.classList.contains('shape')) {
                     el('shape-color-control').style.display = 'flex';
                     el('btn-open-crop').classList.add('hidden');
@@ -1398,8 +1628,8 @@
                     el('sel-img-text-size').value = parseInt(label.style.fontSize) || 12;
                     el('sel-img-text-color').value = rgb2hex(label.style.color);
                 }
-
-            } else if (primaryObj.classList.contains('text-sticker')) {
+            } else if (primaryObj.classList.contains('text-sticker') || primaryObj.classList.contains('memo-wrapper')) {
+                // 텍스트/메모 래퍼 공용 텍스트 컨트롤
                 el('selected-img-controls').style.display = 'none';
                 el('selected-collage-controls').style.display = 'none';
                 el('selected-text-controls').style.display = 'block';
@@ -1408,12 +1638,29 @@
                 el('sel-t-text').value = span.innerText;
                 el('sel-t-size').value = parseInt(span.style.fontSize) || 24;
                 el('sel-t-bold').checked = (span.style.fontWeight === 'bold' || parseInt(span.style.fontWeight) >= 700);
+
+                // 메모 색상 피커 숨김/표시
+                if (primaryObj.classList.contains('memo-wrapper')) {
+                    el('memo-color-control').classList.remove('hidden');
+                    const memoContent = primaryObj.querySelector('.memo-content');
+                    if(memoContent) el('sel-memo-bg-color').value = rgb2hex(memoContent.style.backgroundColor) || '#fef08a';
+                } else {
+                    if(el('memo-color-control')) el('memo-color-control').classList.add('hidden');
+                }
             }
+        }
+
+        // 스냅 정렬용 보조 함수
+        function getRectSnapLines(rect) {
+            return {
+                v: [rect.left, rect.left + rect.width/2, rect.right],
+                h: [rect.top, rect.top + rect.height/2, rect.bottom]
+            };
         }
 
         // 개체 상호작용 할당
         function makeInteractable(obj) {
-            if (obj.classList.contains('text-sticker')) {
+            if (obj.classList.contains('text-sticker') || obj.classList.contains('memo-wrapper')) {
                 const textSpan = obj.querySelector('span');
                 textSpan.addEventListener('mousedown', (e) => { selectObject(obj, e); e.stopPropagation(); });
                 textSpan.addEventListener('blur', saveState);
@@ -1439,12 +1686,82 @@
                 const startCoords = selectedObjs.map(o => ({
                     el: o,
                     initX: parseFloat(o.style.left) || 0,
-                    initY: parseFloat(o.style.top) || 0
+                    initY: parseFloat(o.style.top) || 0,
+                    width: o.offsetWidth,
+                    height: o.offsetHeight
                 }));
                 
+                // 스냅 대상 수집 (현재 선택된 요소 제외)
+                const otherElements = Array.from(document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper, .memo-wrapper'))
+                    .filter(el => !selectedObjs.includes(el))
+                    .map(el => el.getBoundingClientRect());
+
+                const captureAreaRect = el('capture-area').getBoundingClientRect();
+                
                 function onMouseMove(moveEvent) {
-                    const dx = moveEvent.clientX - startX;
-                    const dy = moveEvent.clientY - startY;
+                    let dx = moveEvent.clientX - startX;
+                    let dy = moveEvent.clientY - startY;
+
+                    // 스냅 처리 (Ctrl 키 누를 때)
+                    el('snap-guides').innerHTML = '';
+                    if(moveEvent.ctrlKey && startCoords.length === 1) {
+                        const target = startCoords[0];
+                        const curRect = {
+                            left: captureAreaRect.left + target.initX + dx,
+                            top: captureAreaRect.top + target.initY + dy,
+                            width: target.width,
+                            height: target.height
+                        };
+                        curRect.right = curRect.left + curRect.width;
+                        curRect.bottom = curRect.top + curRect.height;
+
+                        const curLines = getRectSnapLines(curRect);
+                        let snappedX = false, snappedY = false;
+
+                        otherElements.forEach(otherRect => {
+                            const otherLines = getRectSnapLines(otherRect);
+                            
+                            // 수직선 스냅
+                            if(!snappedX) {
+                                for(let cl of curLines.v) {
+                                    for(let ol of otherLines.v) {
+                                        if(Math.abs(cl - ol) < 8) { // 8px 스냅 범위
+                                            dx += (ol - cl);
+                                            snappedX = true;
+                                            
+                                            // 가이드라인 그리기
+                                            const line = document.createElement('div');
+                                            line.className = 'snap-line snap-line-v';
+                                            line.style.left = `${ol - captureAreaRect.left}px`;
+                                            el('snap-guides').appendChild(line);
+                                            break;
+                                        }
+                                    }
+                                    if(snappedX) break;
+                                }
+                            }
+
+                            // 수평선 스냅
+                            if(!snappedY) {
+                                for(let cl of curLines.h) {
+                                    for(let ol of otherLines.h) {
+                                        if(Math.abs(cl - ol) < 8) {
+                                            dy += (ol - cl);
+                                            snappedY = true;
+
+                                            const line = document.createElement('div');
+                                            line.className = 'snap-line snap-line-h';
+                                            line.style.top = `${ol - captureAreaRect.top}px`;
+                                            el('snap-guides').appendChild(line);
+                                            break;
+                                        }
+                                    }
+                                    if(snappedY) break;
+                                }
+                            }
+                        });
+                    }
+
                     startCoords.forEach(c => {
                         c.el.style.left = `${c.initX + dx}px`;
                         c.el.style.top = `${c.initY + dy}px`;
@@ -1454,6 +1771,7 @@
                 function onMouseUp() {
                     window.removeEventListener('mousemove', onMouseMove);
                     window.removeEventListener('mouseup', onMouseUp);
+                    el('snap-guides').innerHTML = ''; // 스냅 선 제거
                     saveState();
                 }
                 window.addEventListener('mousemove', onMouseMove);
@@ -1470,17 +1788,15 @@
                     function onMouseMove(moveEvent) {
                         let angle = Math.atan2(moveEvent.clientY - centerY, moveEvent.clientX - centerX) * 180 / Math.PI;
                         angle = (angle + 90) % 360; 
-                        
-                        if (moveEvent.ctrlKey) {
+                        if (moveEvent.shiftKey) { // Shift를 누르면 45도씩 회전 스냅
                             angle = Math.round(angle / 45) * 45;
                         }
-
                         obj.dataset.angle = angle;
                         obj.style.transform = `rotate(${angle}deg)`;
                     }
                     function onMouseUp() { 
                         window.removeEventListener('mousemove', onMouseMove);
-                        window.removeEventListener('mouseup', onMouseUp); 
+                        window.removeEventListener('mouseup', onMouseUp);
                         saveState();
                     }
                     window.addEventListener('mousemove', onMouseMove);
@@ -1502,7 +1818,7 @@
                         let deltaY = moveEvent.clientY - startY;
                         
                         obj.style.width = `${Math.max(30, initWidth + deltaX)}px`;
-                        if(obj.classList.contains('sticker-wrapper') || obj.classList.contains('collage-wrapper')){
+                        if(obj.classList.contains('sticker-wrapper') || obj.classList.contains('collage-wrapper') || obj.classList.contains('memo-wrapper')){
                             obj.style.height = `${Math.max(30, initHeight + deltaY)}px`;
                         } else {
                             obj.style.height = `${Math.max(30, initWidth + deltaX)}px`;
@@ -1541,7 +1857,8 @@
         }
 
         function appendControlsAndInit(wrapper) {
-            const resizeH = document.createElement('div'); resizeH.className = 'resize-handle';
+            const resizeH = document.createElement('div');
+            resizeH.className = 'resize-handle';
             const rotateH = document.createElement('div'); rotateH.className = 'rotate-handle';
             const delBtn = document.createElement('div'); delBtn.className = 'delete-btn';
             delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
@@ -1554,7 +1871,7 @@
         }
 
         function reattachEvents() {
-            document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper').forEach(el => {
+            document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper, .memo-wrapper').forEach(el => {
                 makeInteractable(el);
                 
                 if(el.classList.contains('collage-wrapper')) {
@@ -1569,26 +1886,43 @@
             });
         }
 
-        // 이미지 개체 추가
+        // 1. 원본 사이즈 반영 로직 추가된 이미지 개체 추가
         el('sticker-input').addEventListener('change', e => {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = ev => {
-                const wrapper = createWrapperBase('sticker-wrapper', '150px', '150px');
-                const content = document.createElement('div'); content.className = 'sticker-content';
-                const img = document.createElement('img'); img.src = ev.target.result;
-                content.appendChild(img);
-                wrapper.appendChild(content);
-                wrapper.appendChild(createBottomLabel());
-                
-                appendControlsAndInit(wrapper);
-                el('sticker-input').value = '';
-                saveState();
+                const imgObj = new Image();
+                imgObj.onload = () => {
+                    let w = imgObj.width;
+                    let h = imgObj.height;
+
+                    // 사이즈가 캔버스를 덮을 정도로 너무 클 경우만 리사이징 (기준: 최대 500px)
+                    if(w > 500) {
+                        h = h * (500 / w);
+                        w = 500;
+                    }
+                    if(h > 500) {
+                        w = w * (500 / h);
+                        h = 500;
+                    }
+
+                    const wrapper = createWrapperBase('sticker-wrapper', `${w}px`, `${h}px`);
+                    const content = document.createElement('div'); content.className = 'sticker-content';
+                    const img = document.createElement('img'); img.src = ev.target.result;
+                    content.appendChild(img);
+                    wrapper.appendChild(content);
+                    wrapper.appendChild(createBottomLabel());
+                    
+                    appendControlsAndInit(wrapper);
+                    el('sticker-input').value = '';
+                    saveState();
+                };
+                imgObj.src = ev.target.result;
             };
             reader.readAsDataURL(file);
         });
-        
+
         // 텍스트 개체 추가
         el('btn-add-text').addEventListener('click', () => {
             const text = el('text-sticker-input').value;
@@ -1597,6 +1931,7 @@
 
             const wrapper = createWrapperBase('text-sticker', 'auto', 'auto');
             wrapper.style.color = color;
+            
             const textSpan = document.createElement('span'); 
             textSpan.contentEditable = "true";
             textSpan.spellcheck = false;
@@ -1609,6 +1944,44 @@
             saveState();
         });
 
+        // 신규 추가: 메모/포스트잇 추가
+        el('btn-add-memo').addEventListener('click', () => {
+            const useTape = el('memo-tape-toggle').checked;
+            const wrapper = createWrapperBase('memo-wrapper', '200px', '200px');
+            
+            if(useTape) {
+                const tape = document.createElement('div');
+                tape.className = 'tape';
+                wrapper.appendChild(tape);
+            }
+
+            const content = document.createElement('div');
+            content.className = 'memo-content';
+            
+            const textSpan = document.createElement('span');
+            textSpan.contentEditable = "true";
+            textSpan.spellcheck = false;
+            textSpan.innerText = '메모를 입력하세요\n(크기 조절 가능)';
+            textSpan.style.fontSize = '16px';
+            
+            content.appendChild(textSpan);
+            wrapper.appendChild(content);
+
+            appendControlsAndInit(wrapper);
+            saveState();
+        });
+
+        // 메모 색상 변경 적용
+        el('sel-memo-bg-color').addEventListener('input', e => {
+            selectedObjs.forEach(obj => {
+                if (obj.classList.contains('memo-wrapper')) {
+                    const content = obj.querySelector('.memo-content');
+                    if(content) content.style.backgroundColor = e.target.value;
+                }
+            });
+        });
+        el('sel-memo-bg-color').addEventListener('change', saveState);
+
         // 도형 개체 추가
         document.querySelectorAll('.btn-add-shape').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -1616,7 +1989,7 @@
                 const wrapper = createWrapperBase('sticker-wrapper shape', '100px', '100px');
                 const content = document.createElement('div');
                 content.className = 'sticker-content';
-                content.style.backgroundColor = '#cbd5e1'; // 기본 색상
+                content.style.backgroundColor = '#cbd5e1'; 
                 
                 if(type === 'circle') content.style.borderRadius = '50%';
                 
@@ -1664,7 +2037,7 @@
         document.querySelector('.btn-add-polaroid').addEventListener('click', () => {
             const wrapper = createWrapperBase('collage-wrapper', '220px', '260px');
             wrapper.style.backgroundColor = '#ffffff';
-            wrapper.style.padding = '12px 12px 45px 12px'; // 폴라로이드 느낌의 하단 여백
+            wrapper.style.padding = '12px 12px 45px 12px';
             wrapper.style.boxShadow = '0 6px 15px rgba(0,0,0,0.1)';
 
             const cell = document.createElement('div');
@@ -1681,7 +2054,6 @@
             const container = document.createElement('div');
             container.className = 'collage-container';
             container.appendChild(cell);
-
             wrapper.appendChild(container);
             
             const label = createBottomLabel();
@@ -1712,7 +2084,6 @@
 
         // 선택 해제 및 수평 정렬
         el('btn-deselect').onclick = () => selectObject(null);
-        
         el('btn-center-x').onclick = () => {
             selectedObjs.forEach(obj => {
                 const parentW = 1280;
@@ -1722,16 +2093,48 @@
             saveState();
         };
 
-        const changeZIndex = (modifier) => {
-            selectedObjs.forEach(obj => {
-                let curZ = parseInt(obj.style.zIndex) || 10;
-                if(modifier === 'top') { highestZIndex++; obj.style.zIndex = highestZIndex; }
-                else if(modifier === 'bottom') { obj.style.zIndex = 1; }
-                else if(modifier === 'up') { obj.style.zIndex = curZ + 1; }
-                else if(modifier === 'down') { obj.style.zIndex = Math.max(1, curZ - 1); }
+        // Z-Index 스왑 함수 (1칸씩 올리기/내리기)
+        const swapZIndex = (obj1, obj2) => {
+            const z1 = parseInt(obj1.style.zIndex) || 10;
+            const z2 = parseInt(obj2.style.zIndex) || 10;
+            obj1.style.zIndex = z2;
+            obj2.style.zIndex = z1;
+        };
+
+        const changeZIndex = (modifier, specificObj = null) => {
+            const targets = specificObj ? [specificObj] : selectedObjs;
+            if (targets.length === 0) return;
+
+            let allElements = Array.from(document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper, .memo-wrapper, #phone-wrapper, #phone-back-wrapper'));
+            
+            targets.forEach(obj => {
+                // 매 반복마다 최신 z-index 순으로 정렬
+                allElements.sort((a, b) => (parseInt(a.style.zIndex)||10) - (parseInt(b.style.zIndex)||10));
+                let currentIndex = allElements.indexOf(obj);
+                
+                if(modifier === 'top') { 
+                    highestZIndex++; obj.style.zIndex = highestZIndex; 
+                }
+                else if(modifier === 'bottom') { 
+                    let lowest = parseInt(allElements[0].style.zIndex) || 10;
+                    obj.style.zIndex = Math.max(1, lowest - 1); 
+                }
+                else if(modifier === 'up') { 
+                    if(currentIndex >= 0 && currentIndex < allElements.length - 1) {
+                        swapZIndex(obj, allElements[currentIndex + 1]);
+                    } else if(currentIndex === allElements.length - 1) {
+                        highestZIndex++; obj.style.zIndex = highestZIndex;
+                    }
+                }
+                else if(modifier === 'down') { 
+                    if(currentIndex > 0) {
+                        swapZIndex(obj, allElements[currentIndex - 1]);
+                    }
+                }
             });
             saveState();
         };
+
         el('btn-layer-top').onclick = () => changeZIndex('top');
         el('btn-layer-bottom').onclick = () => changeZIndex('bottom');
         el('btn-layer-up').onclick = () => changeZIndex('up');
@@ -1795,7 +2198,7 @@
         };
         el('sel-img-glow-c').oninput = applyImgGlow; el('sel-img-glow-s').oninput = applyImgGlow;
         el('sel-img-glow-c').addEventListener('change', saveState); el('sel-img-glow-s').addEventListener('change', saveState);
-        
+
         el('sel-b-radius').oninput = (e) => {
             selectedObjs.forEach(obj => {
                 let content = obj.querySelector('.sticker-content') || obj.querySelector('.collage-grid');
@@ -1833,28 +2236,28 @@
         // 텍스트 개체 제어
         el('sel-t-text').oninput = (e) => {
             selectedObjs.forEach(obj => {
-                if (obj.classList.contains('text-sticker')) obj.querySelector('span').innerText = e.target.value;
+                if (obj.classList.contains('text-sticker') || obj.classList.contains('memo-wrapper')) obj.querySelector('span').innerText = e.target.value;
             });
         };
         el('sel-t-text').addEventListener('change', saveState);
 
         el('sel-t-size').oninput = (e) => {
             selectedObjs.forEach(obj => {
-                if (obj.classList.contains('text-sticker')) obj.querySelector('span').style.fontSize = `${e.target.value}px`;
+                if (obj.classList.contains('text-sticker') || obj.classList.contains('memo-wrapper')) obj.querySelector('span').style.fontSize = `${e.target.value}px`;
             });
         };
         el('sel-t-size').addEventListener('change', saveState);
 
         el('sel-t-color').oninput = (e) => {
             selectedObjs.forEach(obj => {
-                if (obj.classList.contains('text-sticker')) obj.style.color = e.target.value;
+                if (obj.classList.contains('text-sticker') || obj.classList.contains('memo-wrapper')) obj.style.color = e.target.value;
             });
         };
         el('sel-t-color').addEventListener('change', saveState);
 
         el('sel-t-bold').addEventListener('change', (e) => {
             selectedObjs.forEach(obj => {
-                if (obj.classList.contains('text-sticker')) obj.querySelector('span').style.fontWeight = e.target.checked ? 'bold' : 'normal';
+                if (obj.classList.contains('text-sticker') || obj.classList.contains('memo-wrapper')) obj.querySelector('span').style.fontWeight = e.target.checked ? 'bold' : 'normal';
             });
             saveState();
         });
@@ -1873,9 +2276,8 @@
             selectedObjs.forEach(obj => {
                 if (obj.classList.contains('text-sticker')) {
                     let span = obj.querySelector('span');
-                    
                     let shadows = [];
-                    // 외곽선을 뒤로 빼는 효과를 위해 그림자를 다각도로 적용
+                    
                     if (strW > 0) {
                         const steps = 8;
                         for (let i = 0; i < steps; i++) {
@@ -1885,19 +2287,18 @@
                             shadows.push(`${x}px ${y}px 0 ${strC}`);
                         }
                     }
+                    
                     if (gloS > 0) shadows.push(`0 0 ${gloS}px ${gloC}`);
                     
                     span.style.textShadow = shadows.length > 0 ? shadows.join(', ') : 'none';
-                    span.style.webkitTextStroke = '0px'; // 기존의 안쪽 파먹는 외곽선 무효화
+                    span.style.webkitTextStroke = '0px'; 
                     
-                    // 배경 설정
                     span.style.backgroundColor = bgToggle ? bgC : 'transparent';
                     span.style.padding = bgToggle ? '4px 12px' : '0';
                     span.style.borderRadius = `${bgR}px`;
                 }
             });
         };
-        
         ['sel-t-stroke-w', 'sel-t-stroke-c', 'sel-t-glow-s', 'sel-t-glow-c', 'sel-t-bg-toggle', 'sel-t-bg-c', 'sel-t-bg-r'].forEach(id => {
             el(id).addEventListener('input', applyTextEffects);
             el(id).addEventListener('change', saveState);
@@ -1940,12 +2341,12 @@
                 restore: false, guides: true, center: true, highlight: false, cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
             });
         });
-        
+
         el('btn-crop-cancel').addEventListener('click', () => {
             el('crop-modal').classList.add('hidden');
             if(cropper) { cropper.destroy(); cropper = null; }
         });
-        
+
         el('btn-crop-apply').addEventListener('click', () => {
             if(!cropper || selectedObjs.length !== 1) return;
             const canvas = cropper.getCroppedCanvas();
@@ -1958,15 +2359,90 @@
             cropper.destroy(); cropper = null;
             saveState();
         });
-        
+
         el('btn-clear-stickers').onclick = () => {
-            document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper').forEach(s => s.remove());
+            document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper, .memo-wrapper').forEach(s => s.remove());
             selectObject(null);
             saveState();
         };
 
+        // 드래그 복수 선택 (마키 툴) 로직
+        let isDragSelecting = false;
+        let selectionBox = null;
+        let startSelX = 0, startSelY = 0;
+
         el('capture-area').addEventListener('mousedown', (e) => {
-            if (e.target === el('capture-area') || e.target === el('gradient-overlay')) { selectObject(null); }
+            // 빈 공간(배경 등)을 클릭했을 때만 드래그 상자 생성
+            if (e.target === el('capture-area') || e.target === el('gradient-overlay') || e.target.id === 'snap-guides') {
+                if (!e.shiftKey) selectObject(null); 
+                
+                isDragSelecting = true;
+                const rect = el('capture-area').getBoundingClientRect();
+                startSelX = e.clientX - rect.left;
+                startSelY = e.clientY - rect.top;
+
+                selectionBox = document.createElement('div');
+                selectionBox.style.position = 'absolute';
+                selectionBox.style.border = '1px solid rgba(59, 130, 246, 0.8)'; // 파란색 테두리
+                selectionBox.style.backgroundColor = 'rgba(59, 130, 246, 0.2)'; // 반투명 파란색
+                selectionBox.style.left = startSelX + 'px';
+                selectionBox.style.top = startSelY + 'px';
+                selectionBox.style.width = '0px';
+                selectionBox.style.height = '0px';
+                selectionBox.style.zIndex = 99999;
+                selectionBox.style.pointerEvents = 'none';
+                el('capture-area').appendChild(selectionBox);
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragSelecting || !selectionBox) return;
+            const rect = el('capture-area').getBoundingClientRect();
+            let currentX = e.clientX - rect.left;
+            let currentY = e.clientY - rect.top;
+
+            // 캔버스 안으로 제한
+            currentX = Math.max(0, Math.min(currentX, rect.width));
+            currentY = Math.max(0, Math.min(currentY, rect.height));
+
+            const x = Math.min(startSelX, currentX);
+            const y = Math.min(startSelY, currentY);
+            const w = Math.abs(currentX - startSelX);
+            const h = Math.abs(currentY - startSelY);
+
+            selectionBox.style.left = x + 'px';
+            selectionBox.style.top = y + 'px';
+            selectionBox.style.width = w + 'px';
+            selectionBox.style.height = h + 'px';
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (!isDragSelecting) return;
+            isDragSelecting = false;
+            
+            if (selectionBox) {
+                const boxRect = selectionBox.getBoundingClientRect();
+                // 단순 클릭(너무 작은 박스)이 아닌 경우만 교차 영역 검사
+                if (boxRect.width > 5 && boxRect.height > 5) {
+                    const wrappers = document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper, .memo-wrapper');
+                    
+                    wrappers.forEach(wrap => {
+                        const wrapRect = wrap.getBoundingClientRect();
+                        // 닿았는지 검사
+                        if (!(boxRect.right < wrapRect.left || 
+                              boxRect.left > wrapRect.right || 
+                              boxRect.bottom < wrapRect.top || 
+                              boxRect.top > wrapRect.bottom)) {
+                            
+                            if (!selectedObjs.includes(wrap)) {
+                                selectObject(wrap, { shiftKey: true }); // 누적 선택
+                            }
+                        }
+                    });
+                }
+                selectionBox.remove();
+                selectionBox = null;
+            }
         });
 
         // 캡처 이미지로 저장
@@ -1978,34 +2454,33 @@
             const savedScrollY = window.scrollY;
             window.scrollTo(0, 0);
 
-document.fonts.ready.then(() => {
+            document.fonts.ready.then(() => {
+                document.querySelectorAll('.phone-frame').forEach(el => {
+                    el.style.overflow = 'visible';
+                });
 
-    document.querySelectorAll('.phone-frame').forEach(el => {
-        el.style.overflow = 'visible';
-    });
+                document.querySelectorAll('.sticker-content, .memo-content').forEach(el => {
+                    el.style.overflow = 'visible';
+                });
 
-    document.querySelectorAll('.sticker-content').forEach(el => {
-        el.style.overflow = 'visible';
-    });
-
-    setTimeout(() => {
-
-htmlToImage.toPng(target, { 
-            pixelRatio: 2, // 기존 scale: 2와 동일한 고화질 저장 옵션
-            useCORS: true  // 외부 이미지(프로필 등) 정상 로드 허용
-        }).then(dataUrl => {
-            window.scrollTo(savedScrollX, savedScrollY); 
-            
-            const link = document.createElement('a');
-            link.download = 'custom_profile.png';
-            link.href = dataUrl;
-            link.click();
-        }).catch(err => {
-            console.error('저장 오류:', err);
-            window.scrollTo(savedScrollX, savedScrollY);
-        });
-    }, 100);
+                setTimeout(() => {
+                    htmlToImage.toPng(target, { 
+                        pixelRatio: 2,
+                        useCORS: true
+                    }).then(dataUrl => {
+                        window.scrollTo(savedScrollX, savedScrollY); 
+                        
+                        const link = document.createElement('a');
+                        link.download = 'custom_profile.png';
+                        link.href = dataUrl;
+                        link.click();
+                    }).catch(err => {
+                        console.error('저장 오류:', err);
+                        window.scrollTo(savedScrollX, savedScrollY);
+                    });
+                }, 100);
             });
         });
     </script>
+</body>
 </html>
