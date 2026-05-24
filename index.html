@@ -204,6 +204,12 @@
             font-size: 0.75rem; font-weight: 500; transition: 0.2s; border: 1px solid transparent;
             color: #475569;}
         .chip.active { background: #334155; color: white; border-color: #0f172a; }
+
+        /* html2canvas 캡처 시 텍스트 튀어오름 및 위치 변경 방지 */
+        #capture-area * {
+            word-break: keep-all;
+            overflow-wrap: break-word;
+        }
     </style>
 </head>
 <body class="flex h-screen">
@@ -1659,16 +1665,38 @@
         });
 
         // ==========================================
-        // 다운로드 로직
+        // 다운로드 로직 (텍스트 튀어오름 방지 패치)
         // ==========================================
         el('btn-save-img').addEventListener('click', () => {
             const target = el('capture-area');
             selectObject(null); 
-            html2canvas(target, { scale: 2, useCORS: true }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = 'custom_profile.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+
+            // 현재 스크롤 위치 저장 후 맨 위로 이동 (html2canvas 오차 방지)
+            const savedScrollX = window.scrollX;
+            const savedScrollY = window.scrollY;
+            window.scrollTo(0, 0);
+
+            // 폰트가 완전히 로드된 후 캡처 실행
+            document.fonts.ready.then(() => {
+                setTimeout(() => {
+                    html2canvas(target, { 
+                        scale: 2, 
+                        useCORS: true,
+                        scrollX: 0,
+                        scrollY: 0,
+                        windowWidth: document.documentElement.offsetWidth,
+                        windowHeight: document.documentElement.offsetHeight
+                    }).then(canvas => {
+                        window.scrollTo(savedScrollX, savedScrollY); // 원래 스크롤 위치 복구
+                        const link = document.createElement('a');
+                        link.download = 'custom_profile.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    }).catch(err => {
+                        console.error('저장 오류:', err);
+                        window.scrollTo(savedScrollX, savedScrollY); // 오류 시에도 스크롤 복구
+                    });
+                }, 100); // 렌더링 안정화를 위한 짧은 대기
             });
         });
     </script>
