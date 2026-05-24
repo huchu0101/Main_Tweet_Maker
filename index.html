@@ -414,9 +414,9 @@
         </div>
 
         <div class="flex gap-1 mb-1">
-            <button class="btn-preset flex-1 bg-slate-800 text-white text-[10px] py-1.5 rounded font-bold hover:bg-black" data-preset="1"><i class="fa-solid fa-moon"></i> 프리셋 1</button>
-            <button class="btn-preset flex-1 bg-pink-100 text-pink-700 text-[10px] py-1.5 rounded font-bold hover:bg-pink-200" data-preset="2"><i class="fa-solid fa-heart"></i> 프리셋 2</button>
-            <button class="btn-preset flex-1 bg-yellow-400 text-yellow-900 text-[10px] py-1.5 rounded font-bold hover:bg-yellow-500" data-preset="3"><i class="fa-solid fa-star"></i> 프리셋 3</button>
+            <button class="btn-preset flex-1 bg-slate-800 text-white text-[10px] py-1.5 rounded font-bold hover:bg-black transition-colors" data-preset="1"><i class="fa-solid fa-moon"></i> 프리셋 1</button>
+            <button class="btn-preset flex-1 bg-slate-200 text-slate-700 text-[10px] py-1.5 rounded font-bold hover:bg-slate-300 transition-colors" data-preset="2"><i class="fa-solid fa-heart"></i> 프리셋 2</button>
+            <button class="btn-preset flex-1 bg-white border border-slate-300 text-slate-600 text-[10px] py-1.5 rounded font-bold hover:bg-slate-100 transition-colors" data-preset="3"><i class="fa-solid fa-star"></i> 프리셋 3</button>
         </div>
         <p class="text-[10px] text-red-500 font-bold mt-1 mb-6 text-center">현재 프리셋 1만 준비되어있습니다!!</p>
 
@@ -463,8 +463,7 @@
             <hr class="my-4 border-slate-200">
 
             <label class="text-slate-800"><i class="fa-solid fa-layer-group"></i> 개체(이미지/텍스트/도형) 추가</label>
-            <p class="text-[10px] text-red-500 font-bold mb-2">※ 단축키: 마우스 빈공간 드래그(복수선택), Ctrl+C(복사), Ctrl+V(붙여넣기), Delete(삭제)</p>
-            <input type="file" id="sticker-input" accept="image/*" class="text-xs w-full cursor-pointer mb-2 border p-1 bg-white rounded" title="이미지 추가하기">
+            <input type="file" id="sticker-input" accept="image/*" class="text-xs w-full cursor-pointer mt-1 mb-2 border p-1 bg-white rounded" title="이미지 추가하기">
            
             <div class="flex gap-2 mb-3">
                 <input type="color" id="text-sticker-color" value="#1e293b" class="w-8 h-8 border-none cursor-pointer shrink-0 rounded">
@@ -1285,16 +1284,58 @@
             reader.readAsText(file);
         });
 
-        // 프리셋 데이터 (프리셋 1은 전달해주신 JSON으로 교체완료)
+        // 텅 빈 기본 캡처 캔버스 (프리셋 2, 3 초기화 용)
+        const defaultEmptyCaptureHtml = `
+            <div id="snap-guides"></div>
+            <div style="position: absolute; bottom: 10px; left: 10px; z-index: 9999; font-size: 11px; color: rgba(30, 41, 59, 0.4); font-weight: bold; pointer-events: none;">@huchu0101</div>
+            <div id="gradient-overlay" style="position: absolute; inset: 0; z-index: 0; pointer-events: none;"></div>
+            <div id="phone-back-wrapper" style="position: absolute; left: 750px; top: 100px; transform: rotate(15deg) scale(1); transform-origin: center center; z-index: 1; display: none;">
+                <div id="phone-back-frame" class="phone-frame phone-back">
+                    <div id="camera-module" class="camera-module">
+                        <div class="lens lens-1"></div><div class="lens lens-2"></div><div class="lens lens-3"></div><div class="flash"></div><div class="lidar"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="phone-wrapper" style="position: absolute; left: 120px; top: 60px; transform: rotate(-13deg) scale(1); transform-origin: center center; z-index: 2;">
+                <div class="phone-frame">
+                    <div class="phone-notch"></div>
+                    <div class="preview-content" id="phone-inner">
+                        <div class="flex items-center gap-4 mb-6 border-b border-slate-100 pb-5">
+                            <div class="profile-img-container shrink-0" id="p-img-frame"><img src="https://placehold.co/200x200/e2e8f0/94a3b8?text=Photo" id="p-img" alt="Profile"></div>
+                            <div><h3 id="p-nickname" class="t-xl font-black">닉네임</h3><p id="p-id" class="t-10 text-slate-500 font-medium mt-0.5">@id</p></div>
+                        </div>
+                        <div class="mb-4"><p class="t-9 font-bold text-slate-400 uppercase tracking-widest mb-1">Platform</p><p id="p-platform" class="t-xs font-bold text-slate-800">Twitter / X</p></div>
+                        <div class="mb-4"><p class="t-9 font-bold text-slate-400 uppercase tracking-widest mb-1">성향</p><div id="p-tags1" class="flex flex-wrap gap-1"></div></div>
+                        <div class="mb-5"><p class="t-9 font-bold text-slate-400 uppercase tracking-widest mb-1">계정성향</p><div id="p-tags2" class="flex flex-wrap gap-1"></div></div>
+                        <div class="grid grid-cols-2 gap-2 mb-5">
+                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200"><p class="t-9 text-slate-500 font-bold mb-1">이별</p><p id="p-farewell" class="t-xs font-black text-slate-800">블언블</p></div>
+                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-200"><p class="t-9 text-slate-500 font-bold mb-1">타장르</p><p id="p-other" class="t-xs font-black text-slate-800">OK</p></div>
+                        </div>
+                        <div class="mb-4"><p class="t-9 font-bold text-slate-500 uppercase mb-1">INFO</p><div id="p-info" class="t-xs text-slate-700 break-all min-h-[20px]"></div></div>
+                        <div class="mb-2"><p class="t-9 font-bold text-slate-500 uppercase mb-1">NG</p><div id="p-ng" class="t-xs text-slate-700 break-all min-h-[20px]"></div></div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 프리셋 데이터
         const presetsData = {
             1: {"state":{"accent":"#334155","tags1":[],"tags2":[],"imgScale":1,"imgX":0,"imgY":0,"imgRotate":0},"frontState":{"x":125,"y":97,"scale":1.35,"rotate":-13},"backState":{"x":750,"y":100,"rotate":15},"inputs":{"input-bg":"#ffffff","input-accent":"#334155","grad-c1":"#000000","grad-a1":"0","grad-c2":"#000000","grad-a2":"0","grad-angle":"180","text-sticker-color":"#1e293b","text-sticker-input":"","memo-tape-toggle":true,"sel-shape-color":"#cbd5e1","sel-img-glow-c":"#ffffff","sel-img-glow-s":"0","sel-b-width":"0","sel-b-color":"#ffffff","sel-b-radius":"0","sel-img-text-toggle":true,"sel-img-text-size":"12","sel-img-text-color":"#1e293b","sel-t-text":"메모를 입력하세요(크기 조절 가능)","sel-t-size":"16","sel-t-color":"#1e293b","sel-t-bold":false,"sel-t-stroke-w":"0","sel-t-stroke-c":"#ffffff","sel-t-glow-s":"0","sel-t-glow-c":"#ffffff","sel-t-bg-toggle":false,"sel-t-bg-c":"#ffffff","sel-t-bg-r":"0","sel-memo-bg-color":"#cbd5e1","ui-phone-scale":"1.35","ui-phone-x":"125","ui-phone-y":"97","ui-phone-rotate":"-13","toggle-phone-back":false,"phone-back-color":"#334155","phone-camera-color":"#0f172a","toggle-camera-module":true,"ui-back-x":"750","ui-back-y":"100","ui-back-rotate":"15","ui-phone-text-scale":"1","ui-phone-lh":"1.4","img-scale":"1","img-x":"0","img-y":"0","img-rotate":"0","input-nickname":"","input-id":"","input-platform":"","input-etc":"","input-farewell":"블언블","input-other":"OK"},"editable":{"input-info":"","input-ng":""},"captureHtml":"\n            <div id=\"snap-guides\"></div>\n            <div style=\"position: absolute; bottom: 10px; left: 10px; z-index: 9999; font-size: 11px; color: rgba(30, 41, 59, 0.4); font-weight: bold; pointer-events: none;\">@huchu0101</div>\n            \n            <div id=\"gradient-overlay\" style=\"position: absolute; inset: 0px; z-index: 0; pointer-events: none; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));\"></div>\n\n            <div id=\"phone-back-wrapper\" style=\"position: absolute; left: 750px; top: 100px; transform: rotate(15deg) scale(1.35); transform-origin: center center; z-index: 30; display: none;\">\n                <div id=\"phone-back-frame\" class=\"phone-frame phone-back\" style=\"background-color: rgb(51, 65, 85); border-color: rgb(15, 23, 42);\">\n                    <div id=\"camera-module\" class=\"camera-module\" style=\"background-color: rgb(15, 23, 42); border-color: rgb(15, 23, 42); display: flex;\">\n                        <div class=\"lens lens-1\"></div>\n                        <div class=\"lens lens-2\"></div>\n                        <div class=\"lens lens-3\"></div>\n                        <div class=\"flash\"></div>\n                        <div class=\"lidar\"></div>\n                    </div>\n                </div>\n            </div>\n\n            <div id=\"phone-wrapper\" style=\"position: absolute; left: 125px; top: 97px; transform: rotate(-13deg) scale(1.35); transform-origin: center center; z-index: 31; cursor: move;\">\n                <div class=\"phone-frame\">\n                    <div class=\"phone-notch\"></div>\n                    <div class=\"preview-content\" id=\"phone-inner\">\n                        \n                        <div class=\"flex items-center gap-4 mb-6 border-b border-slate-100 pb-5\">\n                            <div class=\"profile-img-container shrink-0\" id=\"p-img-frame\" style=\"border-color: rgb(51, 65, 85);\">\n                                <img src=\"https://placehold.co/200x200/e2e8f0/94a3b8?text=Photo\" id=\"p-img\" alt=\"Profile\" style=\"transform: translate(-50%, -50%) translate(0px, 0px) scale(1) rotate(0deg); left: 50%; top: 50%;\">\n                            </div>\n                            <div>\n                                <h3 id=\"p-nickname\" class=\"t-xl font-black\">닉네임</h3>\n                                <p id=\"p-id\" class=\"t-10 text-slate-500 font-medium mt-0.5\">@id</p>\n                            </div>\n                        </div>\n\n                        <div class=\"mb-4\">\n                            <p class=\"t-9 font-bold text-slate-400 uppercase tracking-widest mb-1\">Platform</p>\n                            <p id=\"p-platform\" class=\"t-xs font-bold text-slate-800\">Twitter / X</p>\n                        </div>\n\n                        <div class=\"mb-4\">\n                            <p class=\"t-9 font-bold text-slate-400 uppercase tracking-widest mb-1\">성향</p>\n                            <div id=\"p-tags1\" class=\"flex flex-wrap gap-1\"></div>\n                        </div>\n                        \n                        <div class=\"mb-5\">\n                            <p class=\"t-9 font-bold text-slate-400 uppercase tracking-widest mb-1\">계정성향</p>\n                            <div id=\"p-tags2\" class=\"flex flex-wrap gap-1\"></div>\n                        </div>\n\n                        <div class=\"grid grid-cols-2 gap-2 mb-5\">\n                            <div class=\"bg-slate-50 p-2 rounded-lg border border-slate-200\">\n                                <p class=\"t-9 text-slate-500 font-bold mb-1\">이별</p>\n                                <p id=\"p-farewell\" class=\"t-xs font-black text-slate-800\">블언블</p>\n                            </div>\n                            <div class=\"bg-slate-50 p-2 rounded-lg border border-slate-200\">\n                                <p class=\"t-9 text-slate-500 font-bold mb-1\">타장르</p>\n                                <p id=\"p-other\" class=\"t-xs font-black text-slate-800\">OK</p>\n                            </div>\n                        </div>\n\n                        <div class=\"mb-4\">\n                            <p class=\"t-9 font-bold text-slate-500 uppercase mb-1\">INFO</p>\n                            <div id=\"p-info\" class=\"t-xs text-slate-700 break-all min-h-[20px]\"></div>\n                        </div>\n                        <div class=\"mb-2\">\n                            <p class=\"t-9 font-bold text-slate-500 uppercase mb-1\">NG</p>\n                            <div id=\"p-ng\" class=\"t-xs text-slate-700 break-all min-h-[20px]\"></div>\n                        </div>\n                        \n                    </div>\n                </div>\n            </div>\n\n        <div class=\"collage-wrapper\" data-angle=\"7.195289142176634\" style=\"left: 432px; top: 17px; width: 220px; height: 260px; z-index: 14; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(7.19529deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"collage-wrapper\" data-angle=\"-13.217788006237868\" style=\"left: 663px; top: 12px; width: 220px; height: 260px; z-index: 15; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(-13.2178deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"memo-wrapper\" data-angle=\"-6.267481953248847\" style=\"left: 867px; top: 37px; width: 384px; height: 143px; z-index: 21; transform: rotate(-6.26748deg);\"><div class=\"tape\"></div><div class=\"memo-content\" style=\"background-color: rgb(203, 213, 225);\"><span contenteditable=\"true\" spellcheck=\"false\" style=\"font-size: 16px;\">메모를 입력하세요<br>(크기 조절 가능)</span></div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"collage-wrapper\" data-angle=\"-13.217788006237868\" style=\"left: 683px; top: 444px; width: 220px; height: 260px; z-index: 34; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(-13.2178deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"collage-wrapper\" data-angle=\"7.195289142176634\" style=\"left: 452px; top: 449px; width: 220px; height: 260px; z-index: 33; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(7.19529deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"memo-wrapper\" data-angle=\"-6.267481953248847\" style=\"left: 900px; top: 505px; width: 384px; height: 143px; z-index: 26; transform: rotate(-6.26748deg);\"><div class=\"tape\"></div><div class=\"memo-content\" style=\"background-color: rgb(203, 213, 225);\"><span contenteditable=\"true\" spellcheck=\"false\" style=\"font-size: 16px;\">메모를 입력하세요<br>(크기 조절 가능)</span></div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"collage-wrapper\" data-angle=\"-13.217788006237868\" style=\"left: 1070px; top: 208px; width: 220px; height: 260px; z-index: 27; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(-13.2178deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"collage-wrapper\" data-angle=\"7.195289142176634\" style=\"left: 839px; top: 213px; width: 220px; height: 260px; z-index: 28; background-color: rgb(255, 255, 255); padding: 12px 12px 45px; box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px; transform: rotate(7.19529deg);\"><div class=\"collage-container\"><div class=\"collage-cell\" style=\"width: 100%; height: 100%;\"><i class=\"fa-solid fa-plus pointer-events-none\"></i></div></div><div class=\"bottom-label\" contenteditable=\"true\" data-placeholder=\"텍스트 기입\" spellcheck=\"false\" style=\"display: block; position: absolute; bottom: 12px; left: 0px; width: 100%;\">텍스트 기입</div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div><div class=\"memo-wrapper\" data-angle=\"3.691385986451266\" style=\"left: 439px; top: 283px; width: 384px; height: 143px; z-index: 32; transform: rotate(3.69139deg);\"><div class=\"tape\"></div><div class=\"memo-content\" style=\"background-color: rgb(203, 213, 225);\"><span contenteditable=\"true\" spellcheck=\"false\" style=\"font-size: 16px;\">메모를 입력하세요<br>(크기 조절 가능)</span></div><div class=\"resize-handle\"></div><div class=\"rotate-handle\"></div><div class=\"delete-btn\"><i class=\"fa-solid fa-xmark\"></i></div></div>","captureBgColor":"","captureBgImage":"","customFont":""},
-            2: { // 러블리 파스텔
-                state: { accent: '#db2777' },
-                inputs: { 'input-bg': '#fdf2f8', 'input-accent': '#db2777', 'toggle-phone-back': true, 'phone-back-color': '#fbcfe8', 'phone-camera-color': '#f472b6', 'grad-a1': 0.4, 'grad-c1': '#bfdbfe', 'grad-a2': 0, 'ui-phone-x': 150, 'ui-phone-y': 80, 'ui-phone-rotate': -5, 'ui-back-x': 700, 'ui-back-y': 150, 'ui-back-rotate': 25 }
+            2: { // 프리셋 2 (초기화)
+                state: { accent: '#334155', tags1: [], tags2: [], imgScale: 1, imgX: 0, imgY: 0, imgRotate: 0 },
+                frontState: { x: 120, y: 60, scale: 1, rotate: -13 },
+                backState: { x: 750, y: 100, rotate: 15 },
+                inputs: { 'input-bg': '#ffffff', 'input-accent': '#334155', 'toggle-phone-back': false, 'ui-phone-scale': "1", 'ui-phone-x': "120", 'ui-phone-y': "60", 'ui-phone-rotate': "-13" },
+                editable: { 'input-info': '', 'input-ng': '' },
+                captureHtml: defaultEmptyCaptureHtml, captureBgColor: '#ffffff', captureBgImage: ''
             },
-            3: { // 레트로 팝
-                state: { accent: '#eab308' },
-                inputs: { 'input-bg': '#3b82f6', 'input-accent': '#eab308', 'toggle-phone-back': true, 'phone-back-color': '#ef4444', 'phone-camera-color': '#fde047', 'grad-a1': 0, 'grad-c1': '#000000', 'grad-a2': 0, 'ui-phone-x': 200, 'ui-phone-y': 100, 'ui-phone-rotate': 10, 'ui-back-x': 600, 'ui-back-y': 50, 'ui-back-rotate': -20 }
+            3: { // 프리셋 3 (초기화)
+                state: { accent: '#334155', tags1: [], tags2: [], imgScale: 1, imgX: 0, imgY: 0, imgRotate: 0 },
+                frontState: { x: 120, y: 60, scale: 1, rotate: -13 },
+                backState: { x: 750, y: 100, rotate: 15 },
+                inputs: { 'input-bg': '#ffffff', 'input-accent': '#334155', 'toggle-phone-back': false, 'ui-phone-scale': "1", 'ui-phone-x': "120", 'ui-phone-y': "60", 'ui-phone-rotate': "-13" },
+                editable: { 'input-info': '', 'input-ng': '' },
+                captureHtml: defaultEmptyCaptureHtml, captureBgColor: '#ffffff', captureBgImage: ''
             }
         };
 
@@ -1303,17 +1344,7 @@
                 const pNum = e.currentTarget.dataset.preset;
                 const pData = presetsData[pNum];
                 if(!pData) return;
-                
-                if (pNum === '1') {
-                    // 프리셋 1은 캔버스 전체를 덮어씌웁니다.
-                    applyProjectData(pData);
-                } else {
-                    // 나머지 프리셋은 설정값만 덮어쓰기
-                    const curSettings = JSON.parse(getSettings());
-                    Object.assign(curSettings.state, pData.state);
-                    Object.assign(curSettings.inputs, pData.inputs);
-                    applyProjectData(curSettings);
-                }
+                applyProjectData(pData);
             });
         });
 
@@ -1629,7 +1660,6 @@
                     el('sel-img-text-color').value = rgb2hex(label.style.color);
                 }
             } else if (primaryObj.classList.contains('text-sticker') || primaryObj.classList.contains('memo-wrapper')) {
-                // 텍스트/메모 래퍼 공용 텍스트 컨트롤
                 el('selected-img-controls').style.display = 'none';
                 el('selected-collage-controls').style.display = 'none';
                 el('selected-text-controls').style.display = 'block';
@@ -1639,7 +1669,6 @@
                 el('sel-t-size').value = parseInt(span.style.fontSize) || 24;
                 el('sel-t-bold').checked = (span.style.fontWeight === 'bold' || parseInt(span.style.fontWeight) >= 700);
 
-                // 메모 색상 피커 숨김/표시
                 if (primaryObj.classList.contains('memo-wrapper')) {
                     el('memo-color-control').classList.remove('hidden');
                     const memoContent = primaryObj.querySelector('.memo-content');
@@ -1650,7 +1679,6 @@
             }
         }
 
-        // 스냅 정렬용 보조 함수
         function getRectSnapLines(rect) {
             return {
                 v: [rect.left, rect.left + rect.width/2, rect.right],
@@ -1691,7 +1719,6 @@
                     height: o.offsetHeight
                 }));
                 
-                // 스냅 대상 수집 (현재 선택된 요소 제외)
                 const otherElements = Array.from(document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper, .memo-wrapper'))
                     .filter(el => !selectedObjs.includes(el))
                     .map(el => el.getBoundingClientRect());
@@ -1702,7 +1729,6 @@
                     let dx = moveEvent.clientX - startX;
                     let dy = moveEvent.clientY - startY;
 
-                    // 스냅 처리 (Ctrl 키 누를 때)
                     el('snap-guides').innerHTML = '';
                     if(moveEvent.ctrlKey && startCoords.length === 1) {
                         const target = startCoords[0];
@@ -1721,15 +1747,12 @@
                         otherElements.forEach(otherRect => {
                             const otherLines = getRectSnapLines(otherRect);
                             
-                            // 수직선 스냅
                             if(!snappedX) {
                                 for(let cl of curLines.v) {
                                     for(let ol of otherLines.v) {
-                                        if(Math.abs(cl - ol) < 8) { // 8px 스냅 범위
+                                        if(Math.abs(cl - ol) < 8) { 
                                             dx += (ol - cl);
                                             snappedX = true;
-                                            
-                                            // 가이드라인 그리기
                                             const line = document.createElement('div');
                                             line.className = 'snap-line snap-line-v';
                                             line.style.left = `${ol - captureAreaRect.left}px`;
@@ -1741,14 +1764,12 @@
                                 }
                             }
 
-                            // 수평선 스냅
                             if(!snappedY) {
                                 for(let cl of curLines.h) {
                                     for(let ol of otherLines.h) {
                                         if(Math.abs(cl - ol) < 8) {
                                             dy += (ol - cl);
                                             snappedY = true;
-
                                             const line = document.createElement('div');
                                             line.className = 'snap-line snap-line-h';
                                             line.style.top = `${ol - captureAreaRect.top}px`;
@@ -1771,7 +1792,7 @@
                 function onMouseUp() {
                     window.removeEventListener('mousemove', onMouseMove);
                     window.removeEventListener('mouseup', onMouseUp);
-                    el('snap-guides').innerHTML = ''; // 스냅 선 제거
+                    el('snap-guides').innerHTML = ''; 
                     saveState();
                 }
                 window.addEventListener('mousemove', onMouseMove);
@@ -1788,7 +1809,7 @@
                     function onMouseMove(moveEvent) {
                         let angle = Math.atan2(moveEvent.clientY - centerY, moveEvent.clientX - centerX) * 180 / Math.PI;
                         angle = (angle + 90) % 360; 
-                        if (moveEvent.shiftKey) { // Shift를 누르면 45도씩 회전 스냅
+                        if (moveEvent.shiftKey) { 
                             angle = Math.round(angle / 45) * 45;
                         }
                         obj.dataset.angle = angle;
@@ -1897,7 +1918,6 @@
                     let w = imgObj.width;
                     let h = imgObj.height;
 
-                    // 사이즈가 캔버스를 덮을 정도로 너무 클 경우만 리사이징 (기준: 최대 500px)
                     if(w > 500) {
                         h = h * (500 / w);
                         w = 500;
@@ -1944,7 +1964,7 @@
             saveState();
         });
 
-        // 신규 추가: 메모/포스트잇 추가
+        // 메모 추가
         el('btn-add-memo').addEventListener('click', () => {
             const useTape = el('memo-tape-toggle').checked;
             const wrapper = createWrapperBase('memo-wrapper', '200px', '200px');
@@ -1971,7 +1991,7 @@
             saveState();
         });
 
-        // 메모 색상 변경 적용
+        // 메모 색상 변경
         el('sel-memo-bg-color').addEventListener('input', e => {
             selectedObjs.forEach(obj => {
                 if (obj.classList.contains('memo-wrapper')) {
@@ -2108,7 +2128,6 @@
             let allElements = Array.from(document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper, .memo-wrapper, #phone-wrapper, #phone-back-wrapper'));
             
             targets.forEach(obj => {
-                // 매 반복마다 최신 z-index 순으로 정렬
                 allElements.sort((a, b) => (parseInt(a.style.zIndex)||10) - (parseInt(b.style.zIndex)||10));
                 let currentIndex = allElements.indexOf(obj);
                 
@@ -2140,7 +2159,6 @@
         el('btn-layer-up').onclick = () => changeZIndex('up');
         el('btn-layer-down').onclick = () => changeZIndex('down');
         
-        // 도형 색상 제어
         el('sel-shape-color').addEventListener('input', e => {
             selectedObjs.forEach(obj => {
                 if(obj.classList.contains('shape')) {
@@ -2151,7 +2169,6 @@
         });
         el('sel-shape-color').addEventListener('change', saveState);
 
-        // 이미지 외곽선 (도형의 경우 테두리 적용)
         const applyImgBorder = () => {
             const width = el('sel-b-width').value;
             const color = el('sel-b-color').value;
@@ -2207,7 +2224,6 @@
         };
         el('sel-b-radius').addEventListener('change', saveState);
 
-        // 하단 텍스트 제어
         el('sel-img-text-toggle').addEventListener('change', e => {
             selectedObjs.forEach(obj => {
                 const label = obj.querySelector('.bottom-label');
@@ -2233,7 +2249,6 @@
         el('sel-img-text-color').addEventListener('change', saveState);
 
 
-        // 텍스트 개체 제어
         el('sel-t-text').oninput = (e) => {
             selectedObjs.forEach(obj => {
                 if (obj.classList.contains('text-sticker') || obj.classList.contains('memo-wrapper')) obj.querySelector('span').innerText = e.target.value;
@@ -2262,7 +2277,6 @@
             saveState();
         });
 
-        // 텍스트 이펙트 (배경, 발광, 외곽선)
         const applyTextEffects = () => {
             let strW = parseFloat(el('sel-t-stroke-w').value);
             let strC = el('sel-t-stroke-c').value;
@@ -2304,7 +2318,6 @@
             el(id).addEventListener('change', saveState);
         });
 
-        // 콜라주 방향 전환
         el('btn-toggle-layout').addEventListener('click', () => {
             selectedObjs.forEach(obj => {
                 if(obj.classList.contains('collage-wrapper')) {
@@ -2328,7 +2341,6 @@
             saveState();
         });
 
-        // 크롭 로직
         let cropper = null;
         el('btn-open-crop').addEventListener('click', () => {
             if(selectedObjs.length !== 1 || !selectedObjs[0].classList.contains('sticker-wrapper')) return;
@@ -2372,7 +2384,6 @@
         let startSelX = 0, startSelY = 0;
 
         el('capture-area').addEventListener('mousedown', (e) => {
-            // 빈 공간(배경 등)을 클릭했을 때만 드래그 상자 생성
             if (e.target === el('capture-area') || e.target === el('gradient-overlay') || e.target.id === 'snap-guides') {
                 if (!e.shiftKey) selectObject(null); 
                 
@@ -2383,8 +2394,8 @@
 
                 selectionBox = document.createElement('div');
                 selectionBox.style.position = 'absolute';
-                selectionBox.style.border = '1px solid rgba(59, 130, 246, 0.8)'; // 파란색 테두리
-                selectionBox.style.backgroundColor = 'rgba(59, 130, 246, 0.2)'; // 반투명 파란색
+                selectionBox.style.border = '1px solid rgba(59, 130, 246, 0.8)'; 
+                selectionBox.style.backgroundColor = 'rgba(59, 130, 246, 0.2)'; 
                 selectionBox.style.left = startSelX + 'px';
                 selectionBox.style.top = startSelY + 'px';
                 selectionBox.style.width = '0px';
@@ -2401,7 +2412,6 @@
             let currentX = e.clientX - rect.left;
             let currentY = e.clientY - rect.top;
 
-            // 캔버스 안으로 제한
             currentX = Math.max(0, Math.min(currentX, rect.width));
             currentY = Math.max(0, Math.min(currentY, rect.height));
 
@@ -2422,20 +2432,18 @@
             
             if (selectionBox) {
                 const boxRect = selectionBox.getBoundingClientRect();
-                // 단순 클릭(너무 작은 박스)이 아닌 경우만 교차 영역 검사
                 if (boxRect.width > 5 && boxRect.height > 5) {
                     const wrappers = document.querySelectorAll('.sticker-wrapper, .text-sticker, .collage-wrapper, .memo-wrapper');
                     
                     wrappers.forEach(wrap => {
                         const wrapRect = wrap.getBoundingClientRect();
-                        // 닿았는지 검사
                         if (!(boxRect.right < wrapRect.left || 
                               boxRect.left > wrapRect.right || 
                               boxRect.bottom < wrapRect.top || 
                               boxRect.top > wrapRect.bottom)) {
                             
                             if (!selectedObjs.includes(wrap)) {
-                                selectObject(wrap, { shiftKey: true }); // 누적 선택
+                                selectObject(wrap, { shiftKey: true }); 
                             }
                         }
                     });
